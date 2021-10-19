@@ -78,7 +78,7 @@ function createConfig(shouldInstrument) {
           }, {}),
       })
     ],
-    target: 'node'
+    target: 'web'
   };
 
   if (shouldInstrument) {

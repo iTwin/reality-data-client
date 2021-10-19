@@ -4,8 +4,6 @@
   "description": "iModel.js Reality Data Client",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
-  "target": "node",
-
   "typings": "lib/cjs/reality-data-client",
   "imodeljsSharedLibrary": true,
   "license": "MIT",
@@ -40,9 +38,6 @@
     "url": "http://www.bentley.com"
   },
   "dependencies": {
-    "@bentley/bentleyjs-core": "^2.19.16",
-    "@bentley/product-settings-client": "^2.19.16",
-    "@bentley/telemetry-client": "^2.19.16",
     "@itwin/appui-abstract": "^3.0.0-dev.72",
     "@itwin/core-bentley": "",
     "@itwin/core-orbitgt": "^3.0.0-dev.72",
@@ -50,13 +45,15 @@
     "@itwin/webgl-compatibility": "^3.0.0-dev.72",
     "deep-assign": "^2.0.0",
     "jshint": "^2.13.1",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "os": "^0.1.2",
+    "url": "^0.11.0"
   },
   "peerDependencies": {
     "@bentley/itwin-client": "^3.0.0-dev.85",
-    "@itwin/core-geometry": "",
+    "@itwin/core-common": "",
     "@itwin/core-frontend": "^3.0.0-dev.76",
-    "@itwin/core-common": ""
+    "@itwin/core-geometry": ""
   },
   "devDependencies": {
     "@bentley/itwin-client": "^3.0.0-dev.85",
