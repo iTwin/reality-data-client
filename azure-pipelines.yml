@@ -8,6 +8,13 @@ pr:
     include:
       - master      # Will trigger a build on a PR on master
 
+resources:
+  repositories:
+    - repository: build-pipeline-scripts
+      type: git
+      ref: master
+      name: iModelTechnologies/imodeljs-build-pipeline-scripts
+      
 stages:
 - stage: Build
   displayName: Build
