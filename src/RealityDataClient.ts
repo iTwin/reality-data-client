@@ -40,6 +40,9 @@ export enum DefaultSupportedTypes {
  */
 @ECJsonTypeMap.classToJson("wsg", "S3MX.RealityData", { schemaPropertyName: "schemaName", classPropertyName: "className" })
 export class RealityData extends WsgInstance {
+  
+  zztoto
+  
   @ECJsonTypeMap.propertyToJson("wsg", "properties.Id")
   public id?: string;
 
