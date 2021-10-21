@@ -68,7 +68,7 @@ stages:
           echo "##vso[task.setvariable variable=realityDataClientName;isOutput=true]$realityDataClientName"
         displayName: 'Store Build Info'
         name: info
-        condition: and((), eq(variables.try_publish, true), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Agent.OS'], 'Linux'))
+        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Agent.OS'], 'Linux'))
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/itwin-reality-data-client-$(info.realityDataClientVersion).tgz'
