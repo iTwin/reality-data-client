@@ -1,6 +1,5 @@
 trigger:
 - master          # Trigger a build when master is modified
-- azure-pipelines # &&ep  tmp
 
 pr:
   drafts: false   # For GitHub only, whether to build draft PRs, defaults to true
