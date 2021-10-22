@@ -3,12 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import * as jsonpath from "jsonpath";
-import { AccessToken, Guid, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
-import { Angle, Range2d } from "@itwin/core-geometry";
+import { AccessToken,  GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 import { ImsAuthorizationClient } from "@bentley/itwin-client";
 import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
-import { DefaultSupportedTypes, RealityData, RealityDataAccessClient, RealityDataRelationship } from "../../RealityDataClient";
+import { DefaultSupportedTypes, RealityData, RealityDataAccessClient} from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 
 chai.should();
@@ -35,6 +33,16 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert.isDefined(iTwinId);
   });
 
+  it("should return a RealityData URL properly from a given ID", async () => {
+    // Test
+    const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
+    const realityDataAccessClient = new RealityDataAccessClient();
+    const realityDataUrl = realityDataAccessClient.getRealityDataUrl(realityDataId);
+
+    chai.assert(realityDataUrl === "https://api.bentley.com/realityData/73226b81-6d95-45d3-9473-20e52703aea5");
+  });
+
+/*
   it("should be able to parse RDS/Context Share URL both valid and invalid.", async () => {
     // Test
     const realityDataId: string | undefined = realityDataServiceClient.getRealityDataIdFromUrl("http://connect-realitydataservices.bentley.com/v2.4/Repositories/S3MXECPlugin--95b8160c-8df9-437b-a9bf-22ad01fecc6b/S3MX/RealityData/73226b81-6d95-45d3-9473-20e52703aea5");
@@ -719,5 +727,5 @@ describe("RealityServicesClient Admin (#integration)", () => {
 
     await realityDataServiceClient.deleteRealityData(accessToken, undefined, realityDataAdded1.id as string);
   });
-
+*/
 });
