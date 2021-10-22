@@ -4,9 +4,9 @@
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
 import { AccessToken,  GuidString, Logger, LogLevel } from "@itwin/core-bentley";
-import { ImsAuthorizationClient } from "@bentley/itwin-client";
-import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
-import { DefaultSupportedTypes, RealityData, RealityDataAccessClient} from "../../RealityDataClient";
+// import { ImsAuthorizationClient } from "@bentley/itwin-client";
+// import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
+import { /* DefaultSupportedTypes, RealityData, */ RealityDataAccessClient} from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 
 chai.should();
@@ -17,13 +17,13 @@ Logger.initializeToConsole();
 Logger.setLevel(LOG_CATEGORY, LogLevel.Info);
 
 describe("RealityServicesClient Normal (#integration)", () => {
-  const realityDataServiceClient: RealityDataAccessClient = new RealityDataAccessClient();
-  const imsClient: ImsAuthorizationClient = new ImsAuthorizationClient();
+  // const realityDataServiceClient: RealityDataAccessClient = new RealityDataAccessClient();
+  // const imsClient: ImsAuthorizationClient = new ImsAuthorizationClient();
 
   let iTwinId: GuidString;
 
-  const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
-  const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
+  // const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
+  // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
 
   let accessToken: AccessToken;
 
