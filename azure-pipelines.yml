@@ -1,0 +1,105 @@
+trigger:
+- master          # Trigger a build when master is modified
+
+pr:
+  drafts: false   # For GitHub only, whether to build draft PRs, defaults to true
+  branches:
+    include:
+      - master      # Will trigger a build on a PR on master
+
+resources:
+  repositories:
+    - repository: build-pipeline-scripts
+      type: git
+      ref: master
+      name: iModelTechnologies/imodeljs-build-pipeline-scripts
+      
+stages:
+- stage: Build
+  displayName: Build
+  jobs:
+    - job: BuildPackages  # Build on linux, mac, windows
+      strategy:
+        matrix:
+          linux:
+            imageName: 'ubuntu-latest'
+          mac:
+            imageName: 'macos-latest'
+          windows:
+            imageName: 'windows-latest'
+      pool:
+        vmImage: $(imageName) # Which pool to use for the job
+      steps:
+      - script: npm install
+        displayName: 'Install dependencies'
+
+      - script: npm run build
+        displayName: 'Build'
+
+      - script: npm run lint
+        displayName: 'Lint'
+
+      # TODO - adjust this when tests run correctly
+      - script: npm run test
+        displayName: npm run test
+        workingDirectory: src/test
+
+      - script: npm pack
+        displayName: 'Pack'
+
+      # publish artifact
+      - bash: |
+          realityDataClientVersion=$(node -p "require('./package.json').version")
+          realityDataClientName=$(node -p "require('./package.json').name")
+          checkVer() {
+            localVer=$1
+            name=$2
+            remoteVer=$(npm view $name version)
+            if [ -z "$remoteVer" ]; then
+              # $remoteVer is null or empty
+              remoteVer=0.0.0
+            fi
+            olderVer=$(printf '%s\n' "$localVer" "$remoteVer" | sort -V | head -n1)
+            if [ "$localVer" != "$remoteVer" ] && [ "$remoteVer" = "$olderVer" ]; then
+              echo true
+            else
+              echo false
+            fi
+          }
+          updateClient=$(checkVer $realityDataClientVersion $realityDataClientName)
+          if [ "$updateClient" = "true" ]; then
+            echo "package publishing conditions are met."
+            shouldPublish=true
+          else
+            echo "package publishing conditions not met."
+            shouldPublish=false
+          fi
+          echo "##vso[task.setvariable variable=shouldPublish;isOutput=true]$shouldPublish"
+          echo "##vso[task.setvariable variable=realityDataClientVersion;isOutput=true]$realityDataClientVersion"
+          echo "##vso[task.setvariable variable=realityDataClientName;isOutput=true]$realityDataClientName"
+        displayName: 'Store Build Info'
+        name: info
+        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Agent.OS'], 'Linux'))
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.SourcesDirectory)/itwin-reality-data-client-$(info.realityDataClientVersion).tgz'
+          artifactName: realityDataClient
+        displayName: 'Publish Reality Data client'
+        condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
+
+# TODO -  Activate this stage when we have authorization to access to npmjs-(imodeljs-admin) environment.
+#
+#         Current error: Job DeployToNPMJs_RealityDataClient: Environment npmjs-(imodeljs-admin) could not 
+#         be found. The environment does not exist or has not been authorized for use.
+
+# - stage: Publish
+#   displayName: Publish
+#   condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
+#   dependsOn: Build
+
+#   jobs:
+#     - template: templates/npmjs-publish-deployment.yaml@build-pipeline-scripts
+#       parameters:
+#         path: '*.tgz'
+#         artifactName: RealityDataClient
+#         name: RealityDataClient
