@@ -26,7 +26,7 @@ export enum DefaultSupportedTypes {
  * Build the request methods, headers, and other options
  * @param accessTokenString The client access token string
  */
- function getRequestOptions(accessTokenString: string): RequestOptions {
+function getRequestOptions(accessTokenString: string): RequestOptions {
   return {
     method: "GET",
     headers: {
