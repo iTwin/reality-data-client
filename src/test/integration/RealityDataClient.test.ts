@@ -1,3 +1,5 @@
+/* eslint-disable no-debugger */
+/* eslint-disable no-console */
 /*---------------------------------------------------------------------------------------------
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
@@ -6,7 +8,7 @@ import * as chai from "chai";
 import { AccessToken,  GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 // import { ImsAuthorizationClient } from "@bentley/itwin-client";
 // import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
-import { /* DefaultSupportedTypes, RealityData, */ RealityDataAccessClient} from "../../RealityDataClient";
+import {/* DefaultSupportedTypes, */ RealityData, RealityDataAccessClient} from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 
 chai.should();
@@ -22,7 +24,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   let iTwinId: GuidString;
 
-  // const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
+  const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
   // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
 
   let accessToken: AccessToken;
@@ -34,12 +36,41 @@ describe("RealityServicesClient Normal (#integration)", () => {
   });
 
   it("should return a RealityData URL properly from a given ID", async () => {
+    try {
     // Test
-    const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
-    const realityDataAccessClient = new RealityDataAccessClient();
-    const realityDataUrl = realityDataAccessClient.getRealityDataUrl(realityDataId);
+      const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
+      const realityDataAccessClient = new RealityDataAccessClient();
+      const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(realityDataId);
+      let expectedUrl = "https://api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5";
+      const urlPrefix = process.env.IMJS_URL_PREFIX;
+      if (urlPrefix) {
+        expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5`;
+      }
+      chai.assert(realityDataUrl === expectedUrl);
+    } catch (errorResponse: any) {
+      throw Error(`Test error: ${errorResponse}`);
+    }
+  });
 
-    chai.assert(realityDataUrl === "https://api.bentley.com/realityData/73226b81-6d95-45d3-9473-20e52703aea5");
+  it("should return a RealityData from a given ID", async () => {
+    try {
+      const realityDataAccessClient = new RealityDataAccessClient();
+      const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      chai.assert(realityData);
+      chai.assert(realityData.id === tilesId);
+      chai.assert(realityData.client);
+      chai.assert(realityData.projectId === iTwinId);
+    } catch (errorResponse: any) {
+      throw Error(`Test error: ${errorResponse}`);
+    }
+  });
+
+  it("should be able to retrieve the azure blob url", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient();
+    const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+    const url: URL = await realityData.getBlobUrl(accessToken, "test");
+    chai.assert(url);
+    chai.assert(url.toString().includes("test"));
   });
 
 /*

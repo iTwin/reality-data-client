@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /*---------------------------------------------------------------------------------------------
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
@@ -7,7 +8,6 @@
  * @module RealityDataClient
  */
 
-import { URL } from "url";
 import { AccessToken } from "@itwin/core-bentley";
 import { request, RequestOptions } from "@bentley/itwin-client";
 
@@ -126,7 +126,7 @@ export class RealityData {
    * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
    * @returns app URL object for blob url
    */
-  public async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
+  private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
     // Normally the client is set when the reality data is extracted for the client but it could be undefined
     // if the reality data instance is created manually.
     if (!this.client)
@@ -141,15 +141,13 @@ export class RealityData {
     const permissions = (writeAccess === true ? "Write" : "Read");
 
     const requestOptions = getRequestOptions(accessToken);
-
     try {
-      const response = await request(`${this.client.getRealityDataUrl(this.id)}/container/?projectId=${this.projectId}&permissions=${permissions}`, requestOptions);
+      const response = await request(`${await this.client.getRealityDataUrl(this.id)}/container/?projectId=${this.projectId}&permissions=${permissions}`, requestOptions);
 
       if(!response.body.container) {
         new Error("API returned an unexpected response.");
       }
-
-      return response.body.container._links.containerUrl.href;
+      return new URL(response.body.container._links.containerUrl.href);
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
@@ -166,12 +164,18 @@ export class RealityData {
  */
 export class RealityDataAccessClient {
 
-  public readonly baseUrl: string;
+  public readonly baseUrl: string = "https://api.bentley.com/realitydata";
+
   /**
    * Creates an instance of RealityDataServicesClient.
    */
   public constructor() {
-    this.baseUrl = "https://api.bentley.com/realitydata";
+    const urlPrefix = process.env.IMJS_URL_PREFIX;
+    if (urlPrefix) {
+      const baseUrl = new URL(this.baseUrl);
+      baseUrl.hostname = urlPrefix + baseUrl.hostname;
+      this.baseUrl = baseUrl.href;
+    }
   }
 
   /**
@@ -181,7 +185,7 @@ export class RealityDataAccessClient {
    * @param realityDataId realityDataInstance id
    * @returns string containing the URL to reality data for indicated tile.
    */
-  public getRealityDataUrl(realityDataId: string) {
+  public async getRealityDataUrl(realityDataId: string) {
     return `${this.baseUrl}/${realityDataId}`;
   }
 
@@ -194,7 +198,7 @@ export class RealityDataAccessClient {
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<RealityData> {
 
-    const url = `${this.getRealityDataUrl(realityDataId)}?projectId=${iTwinId}`;
+    const url = `${await this.getRealityDataUrl(realityDataId)}?projectId=${iTwinId}`;
 
     try {
 
@@ -204,10 +208,11 @@ export class RealityDataAccessClient {
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
       const realityData = new RealityData();
+      realityData.client = this; // yes?
       realityData.id = realityDataResponse.body.realityData.id;
       realityData.rootDocument = realityDataResponse.body.realityData.rootDocument;
       realityData.type = realityDataResponse.body.realityData.type;
-
+      realityData.projectId = iTwinId;
       return realityData;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
