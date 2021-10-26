@@ -8,7 +8,7 @@
  * @module RealityDataClient
  */
 
-import { AccessToken } from "@itwin/core-bentley";
+import { AccessToken, GuidString} from "@itwin/core-bentley";
 import { request, RequestOptions } from "@bentley/itwin-client";
 import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
 // TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
@@ -57,10 +57,10 @@ export interface Acquisition {
  * may contain a RealityDataClient to obtain the WSG client specialization to communicate with ProjectWise Context Share (to obtain the Azure blob URL).
  * @internal
  */
-export class RealityDataExt implements RealityData {
+class ITwinRealityData implements RealityData {
 
-  public id: string;
-  public displayName: string;
+  public id: GuidString;
+  public displayName?: string;
   public dataset?: string;
   public group?: string;
   public dataLocation?: string;
@@ -69,8 +69,8 @@ export class RealityDataExt implements RealityData {
   public acquisition?: Acquisition;
   public size?: number;
   public authoring?: boolean;
-  public classification: string;
-  public type: string;
+  public classification?: string;
+  public type?: string;
   public extent?: Extent;
   public modifiedDateTime?: string;
   public lastAccessedDateTime?: string;
@@ -80,7 +80,7 @@ export class RealityDataExt implements RealityData {
   public client: undefined | RealityDataAccessClient;
 
   // The GUID of the iTwin used when using the client.
-  public iTwinId: undefined | string;
+  public iTwinId: GuidString;
 
   /**
    * Creates an instance of RealityData.
@@ -118,7 +118,7 @@ export class RealityDataExt implements RealityData {
       this.client = new RealityDataAccessClient();
 
     if (!this.iTwinId)
-      throw new Error("project Id not set");
+      throw new Error("iTwin Id is not set");
 
     if (!this.id)
       throw new Error("realityData Id not set");
@@ -127,7 +127,8 @@ export class RealityDataExt implements RealityData {
 
     const requestOptions = getRequestOptions(accessToken);
     try {
-      const response = await request(`${await this.client.getRealityDataUrl(undefined, this.id)}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+
+      const response = await request(`${ this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
 
       if(!response.body.container) {
         new Error("API returned an unexpected response.");
@@ -172,7 +173,11 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @returns string containing the URL to reality data for indicated tile.
    */
   public async getRealityDataUrl(iTwinId: string | undefined, realityDataId: string): Promise<string> {
-    return iTwinId ? `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}` : `${this.baseUrl}/${realityDataId}/`;
+
+    if(iTwinId) {
+      return `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
+    }
+    throw new Error("iTwinId is not set.");
   }
 
   /**
@@ -192,7 +197,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
       if(realityDataResponse.status !== 200 )
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
-      const realityData = new RealityDataExt();
+      const realityData = new ITwinRealityData();
 
       // fill in properties
 
@@ -212,7 +217,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
       realityData.modifiedDateTime = realityDataResponse.body.realityData.modifiedDateTime;
       realityData.lastAccessedDateTime = realityDataResponse.body.realityData.lastAccessedDateTime;
       realityData.createdDateTime = realityDataResponse.body.realityData.createdDateTime;
-      realityData.iTwinId = iTwinId;
+      realityData.iTwinId = iTwinId!;
 
       return realityData;
     } catch (errorResponse: any) {
