@@ -84,7 +84,7 @@ export class RealityData {
   public size?: number;
   public authoring?: boolean;
   public classification: string;
-  public type: string;
+  public type?: string;
   public extent?: Extent;
   public modifiedDateTime?: string;
   public lastAccessedDateTime?: string;
@@ -203,16 +203,31 @@ export class RealityDataAccessClient {
     try {
 
       const realityDataResponse = await request(url, getRequestOptions(accessToken));
-
       if(realityDataResponse.status !== 200 )
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
       const realityData = new RealityData();
-      realityData.client = this; // yes?
+
+      // fill in properties
+
+      realityData.client = this;
       realityData.id = realityDataResponse.body.realityData.id;
+      realityData.displayName = realityDataResponse.body.realityData.displayName;
+      realityData.dataset = realityDataResponse.body.realityData.dataset;
+      realityData.group = realityDataResponse.body.realityData.group;
+      realityData.dataLocation = realityDataResponse.body.realityData.dataLocation;
       realityData.rootDocument = realityDataResponse.body.realityData.rootDocument;
+      realityData.acquisition = realityDataResponse.body.realityData.acquisition;
+      realityData.size = realityDataResponse.body.realityData.size;
+      realityData.authoring = realityDataResponse.body.realityData.authoring;
+      realityData.classification = realityDataResponse.body.realityData.classification;
       realityData.type = realityDataResponse.body.realityData.type;
+      realityData.extent = realityDataResponse.body.realityData.extent;
+      realityData.modifiedDateTime = realityDataResponse.body.realityData.modifiedDateTime;
+      realityData.lastAccessedDateTime = realityDataResponse.body.realityData.lastAccessedDateTime;
+      realityData.createdDateTime = realityDataResponse.body.realityData.createdDateTime;
       realityData.projectId = iTwinId;
+
       return realityData;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);

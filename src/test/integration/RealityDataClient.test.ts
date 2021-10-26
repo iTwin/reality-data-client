@@ -37,7 +37,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
-    // Test
       const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
       const realityDataAccessClient = new RealityDataAccessClient();
       const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(realityDataId);
@@ -60,6 +59,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
       chai.assert(realityData.id === tilesId);
       chai.assert(realityData.client);
       chai.assert(realityData.projectId === iTwinId);
+
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
