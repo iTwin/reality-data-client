@@ -10,6 +10,9 @@
 
 import { AccessToken } from "@itwin/core-bentley";
 import { request, RequestOptions } from "@bentley/itwin-client";
+import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
+// TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
+// import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
 
 /**
  * Build the request methods, headers, and other options
@@ -54,7 +57,7 @@ export interface Acquisition {
  * may contain a RealityDataClient to obtain the WSG client specialization to communicate with ProjectWise Context Share (to obtain the Azure blob URL).
  * @internal
  */
-export class RealityData {
+export class RealityDataExt implements RealityData {
 
   public id: string;
   public displayName: string;
@@ -124,7 +127,7 @@ export class RealityData {
 
     const requestOptions = getRequestOptions(accessToken);
     try {
-      const response = await request(`${await this.client.getRealityDataUrl(this.id)}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+      const response = await request(`${await this.client.getRealityDataUrl(undefined, this.id)}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
 
       if(!response.body.container) {
         new Error("API returned an unexpected response.");
@@ -144,7 +147,7 @@ export class RealityData {
  * This class also implements extraction of the Azure blob address.
  * @internal
  */
-export class RealityDataAccessClient {
+export class RealityDataAccessClient implements RealityDataAccess {
 
   public readonly baseUrl: string = "https://api.bentley.com/realitydata";
 
@@ -161,14 +164,15 @@ export class RealityDataAccessClient {
   }
 
   /**
-   * This method returns the URL to obtain the Reality Data details from PW Context Share.
+   * This method returns the URL to obtain the Reality Data details.
    * Technically it should never be required as the RealityData object returned should have all the information to obtain the
    * data.
-   * @param realityDataId realityDataInstance id
+   * @param iTwinId the iTwin identifier
+   * @param realityDataId realityData identifier
    * @returns string containing the URL to reality data for indicated tile.
    */
-  public async getRealityDataUrl(realityDataId: string) {
-    return `${this.baseUrl}/${realityDataId}`;
+  public async getRealityDataUrl(iTwinId: string | undefined, realityDataId: string): Promise<string> {
+    return iTwinId ? `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}` : `${this.baseUrl}/${realityDataId}/`;
   }
 
   /**
@@ -180,7 +184,7 @@ export class RealityDataAccessClient {
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<RealityData> {
 
-    const url = `${await this.getRealityDataUrl(realityDataId)}?projectId=${iTwinId}`;
+    const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 
     try {
 
@@ -188,7 +192,7 @@ export class RealityDataAccessClient {
       if(realityDataResponse.status !== 200 )
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
-      const realityData = new RealityData();
+      const realityData = new RealityDataExt();
 
       // fill in properties
 
