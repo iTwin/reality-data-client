@@ -11,17 +11,6 @@
 import { AccessToken } from "@itwin/core-bentley";
 import { request, RequestOptions } from "@bentley/itwin-client";
 
-/** Currently supported ProjectWise ContextShare reality data types
- * @internal
- */
-export enum DefaultSupportedTypes {
-  RealityMesh3dTiles = "RealityMesh3DTiles", // Web Ready 3D Scalable Mesh
-  OPC = "OPC", // Web Ready Orbit Point Cloud
-  Terrain3dTiles = "Terrain3DTiles", // Web Ready Terrain Scalable Mesh
-  OMR = "OMR", // Orbit Mapping Resource
-  Cesium3dTiles = "Cesium3DTiles" // Cesium 3D Tiles
-}
-
 /**
  * Build the request methods, headers, and other options
  * @param accessTokenString The client access token string
@@ -36,12 +25,6 @@ function getRequestOptions(accessTokenString: string): RequestOptions {
       "accept": "application/vnd.bentley.v1+json",
     },
   };
-}
-
-export interface RealityDataPayload
-{
-  projectId?: string;
-  realityData: RealityData;
 }
 
 export interface Extent {
