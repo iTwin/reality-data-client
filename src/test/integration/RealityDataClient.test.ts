@@ -58,7 +58,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
       chai.assert(realityData.client);
-      chai.assert(realityData.projectId === iTwinId);
+      chai.assert(realityData.iTwinId === iTwinId);
 
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);

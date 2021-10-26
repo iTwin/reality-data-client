@@ -93,9 +93,8 @@ export class RealityData {
   // Link to client to fetch the blob url
   public client: undefined | RealityDataAccessClient;
 
-  // The GUID of the iTwin used when using the client or "Server" to indicate access is performed out of context (for accessing PUBLIC or ENTERPRISE data).
-  // If undefined when accessing reality data tiles then it will automatically be set to "Server"
-  public projectId: undefined | string;
+  // The GUID of the iTwin used when using the client.
+  public iTwinId: undefined | string;
 
   /**
    * Creates an instance of RealityData.
@@ -132,7 +131,7 @@ export class RealityData {
     if (!this.client)
       this.client = new RealityDataAccessClient();
 
-    if (!this.projectId)
+    if (!this.iTwinId)
       throw new Error("project Id not set");
 
     if (!this.id)
@@ -142,7 +141,7 @@ export class RealityData {
 
     const requestOptions = getRequestOptions(accessToken);
     try {
-      const response = await request(`${await this.client.getRealityDataUrl(this.id)}/container/?projectId=${this.projectId}&permissions=${permissions}`, requestOptions);
+      const response = await request(`${await this.client.getRealityDataUrl(this.id)}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
 
       if(!response.body.container) {
         new Error("API returned an unexpected response.");
@@ -226,7 +225,7 @@ export class RealityDataAccessClient {
       realityData.modifiedDateTime = realityDataResponse.body.realityData.modifiedDateTime;
       realityData.lastAccessedDateTime = realityDataResponse.body.realityData.lastAccessedDateTime;
       realityData.createdDateTime = realityDataResponse.body.realityData.createdDateTime;
-      realityData.projectId = iTwinId;
+      realityData.iTwinId = iTwinId;
 
       return realityData;
     } catch (errorResponse: any) {
