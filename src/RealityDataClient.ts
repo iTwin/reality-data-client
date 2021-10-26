@@ -73,7 +73,7 @@ export interface Acquisition {
  */
 export class RealityData {
 
-  public id?: string;
+  public id: string;
   public displayName: string;
   public dataset?: string;
   public group?: string;
@@ -84,7 +84,7 @@ export class RealityData {
   public size?: number;
   public authoring?: boolean;
   public classification: string;
-  public type?: string;
+  public type: string;
   public extent?: Extent;
   public modifiedDateTime?: string;
   public lastAccessedDateTime?: string;
