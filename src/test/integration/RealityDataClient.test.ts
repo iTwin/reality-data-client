@@ -40,6 +40,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
       const projectId = "ec002f93-f0c1-4ab3-a407-351848eba233";
       const realityDataAccessClient = new RealityDataAccessClient();
+
+      // test with projectId (iTwinId)
       const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
       let expectedUrl = `https://api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5?projectId=${projectId}`;
       const urlPrefix = process.env.IMJS_URL_PREFIX;
@@ -47,6 +49,15 @@ describe("RealityServicesClient Normal (#integration)", () => {
         expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5?projectId=${projectId}`;
       }
       chai.assert(realityDataUrl === expectedUrl);
+
+      // test without projectId
+      const realityDataUrlNoItwinId = await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId);
+      let expectedUrl2 = `https://api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5/`;
+      if (urlPrefix) {
+        expectedUrl2 = `https://${urlPrefix}api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5/`;
+      }
+
+      chai.assert(realityDataUrlNoItwinId === expectedUrl2);
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
