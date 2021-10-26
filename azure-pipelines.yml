@@ -39,10 +39,8 @@ stages:
       - script: npm run lint
         displayName: 'Lint'
 
-      # TODO - adjust this when tests run correctly
-      - script: npm run test
-        displayName: npm run test
-        workingDirectory: src/test
+      - script: npm run test:integration
+        displayName: npm run test:integration
 
       - script: npm pack
         displayName: 'Pack'
