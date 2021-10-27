@@ -2,7 +2,8 @@
   "extends": "./node_modules/@itwin/build-tools/tsconfig-base.json",
   "compilerOptions": {
     "strictPropertyInitialization": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true,
   },
   "include": ["./src/**/*.ts"],
 }
