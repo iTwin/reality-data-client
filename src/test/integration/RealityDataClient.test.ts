@@ -4,6 +4,7 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
+import chaiAsPromised from "chai-as-promised";
 import * as chai from "chai";
 import { AccessToken,  GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 // import { ImsAuthorizationClient } from "@bentley/itwin-client";
@@ -11,7 +12,10 @@ import { AccessToken,  GuidString, Logger, LogLevel } from "@itwin/core-bentley"
 import {/* DefaultSupportedTypes, */ RealityDataAccessClient } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 
+chai.config.showDiff = true;
+
 chai.should();
+chai.use(chaiAsPromised);
 
 const LOG_CATEGORY: string = "RealityDataClient.Test";
 
@@ -50,10 +54,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
       }
       chai.assert(realityDataUrl === expectedUrl);
 
-    // test without projectId
-    // TODO make this work
-    // await chai.expect(await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId)).to.be.rejected;
-    // await chai.expect(await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId)).to.be.rejectedWith(Error);
+      // test without projectId
+      await chai.expect(realityDataAccessClient.getRealityDataUrl(undefined, "realityDataId")).to.eventually.be.rejectedWith(Error);
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
@@ -65,8 +67,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
-      // chai.assert(realityData.client);
-      // chai.assert(realityData.iTwinId === iTwinId);
+
+      await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
 
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);

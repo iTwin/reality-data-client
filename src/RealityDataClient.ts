@@ -24,7 +24,7 @@ function getRequestOptions(accessTokenString: string): RequestOptions {
     headers: {
       "authorization": accessTokenString,
       "content-type": "application/json",
-      "user-agent": "RealityData Client (iTwinjs)",
+      "user-agent": "RealityData Client (iTwinjs) v3.0.0-dev.##", // TODO figure out how to include build number
       "accept": "application/vnd.bentley.v1+json",
     },
   };
@@ -41,8 +41,8 @@ export interface Point {
 }
 
 export interface Acquisition {
-  startDateTime: string;
-  endDateTime?: string;
+  startDateTime: Date;
+  endDateTime?: Date;
   acquirer?: string;
 }
 
@@ -72,9 +72,9 @@ class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
-  public modifiedDateTime?: string;
-  public lastAccessedDateTime?: string;
-  public createdDateTime?: string;
+  public modifiedDateTime?: Date;
+  public lastAccessedDateTime?: Date;
+  public createdDateTime?: Date;
 
   // Link to client to fetch the blob url
   public client: undefined | RealityDataAccessClient;
@@ -116,12 +116,6 @@ class ITwinRealityData implements RealityData {
     // if the reality data instance is created manually.
     if (!this.client)
       this.client = new RealityDataAccessClient();
-
-    if (!this.iTwinId)
-      throw new Error("iTwin Id is not set");
-
-    if (!this.id)
-      throw new Error("realityData Id not set");
 
     const permissions = (writeAccess === true ? "Write" : "Read");
 
