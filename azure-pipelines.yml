@@ -1,21 +1,6 @@
 trigger:
 - master          # Trigger a build when master is modified
 
-- task: setenv@0
-  inputs:
-    envVars: |
-      IMJS_DEFAULT_RELYING_PARTY_URI="https://connect-wsg20.bentley.com"
-      IMJS_BUDDI_RESOLVE_URL_USING_REGION="102"
-      IMJS_URL_PREFIX="qa-"
-      IMJS_TEST_REGULAR_USER_NAME=${{ secrets.test_regular_user_name }}
-      IMJS_TEST_REGULAR_USER_PASSWORD="potato"
-      IMJS_TEST_MANAGER_USER_NAME=${{ secrets.test_manager_user_name }}
-      IMJS_TEST_MANAGER_USER_PASSWORD="potato"
-      IMJS_OIDC_BROWSER_TEST_CLIENT_ID="spa-PpFCmdU5cHuC4WdeEKp0bAxo0"
-      IMJS_OIDC_BROWSER_TEST_REDIRECT_URI="http://localhost:5001/signin-oidc"
-      IMJS_OIDC_BROWSER_TEST_SCOPES="imodels:modify openid profile organization email storage:read itwinjs realitydata:modify realitydata:read library:read imodels:read storage:modify"
-    shouldFixSlashes: true
-
 pr:
   drafts: false   # For GitHub only, whether to build draft PRs, defaults to true
   branches:
@@ -44,6 +29,20 @@ stages:
             imageName: 'windows-latest'
       pool:
         vmImage: $(imageName) # Which pool to use for the job
+        environment: qa-tests-integration
+        variables:
+          IMJS_DEFAULT_RELYING_PARTY_URI: "https://connect-wsg20.bentley.com"  #todo might not be required
+          IMJS_BUDDI_RESOLVE_URL_USING_REGION: "102"
+          IMJS_URL_PREFIX: "qa-"
+          IMJS_TEST_REGULAR_USER_NAME: ${{ secrets.test_regular_user_name }}
+          IMJS_TEST_REGULAR_USER_PASSWORD: "potato"
+          IMJS_TEST_MANAGER_USER_NAME: ${{ secrets.test_manager_user_name }}
+          IMJS_TEST_MANAGER_USER_PASSWORD: "potato"
+          IMJS_OIDC_BROWSER_TEST_CLIENT_ID: "spa-PpFCmdU5cHuC4WdeEKp0bAxo0"
+          IMJS_OIDC_BROWSER_TEST_REDIRECT_URI: "http://localhost:5001/signin-oidc"
+          IMJS_OIDC_BROWSER_TEST_SCOPES: "imodels:modify openid profile organization email storage:read itwinjs realitydata:modify realitydata:read library:read imodels:read storage:modify"
+          shouldFixSlashes: true
+
       steps:
       - script: npm install
         displayName: 'Install dependencies'
@@ -57,7 +56,6 @@ stages:
       # integration tests
       - script: npm run test:integration
         displayName: npm run test:integration
-        environment: qa-tests-integration
 
       - script: npm pack
         displayName: 'Pack'
