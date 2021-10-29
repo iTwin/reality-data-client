@@ -48,8 +48,9 @@ stages:
           echo ${{ variables.one }} # outputs initialValue
           echo $(one)
           echo ----------------------------
-          echo ${{ variables.test1 }} 
-          echo $(test1)
+          echo 1: ${{ variables.test1 }} 
+          echo 2: ${{ test1 }} 
+          echo 3: $(test1)
         displayName: First variable pass
       - bash: echo '##vso[task.setvariable variable=one]secondValue'
         displayName: Set new variable value
