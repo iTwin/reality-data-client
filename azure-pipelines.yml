@@ -17,6 +17,10 @@ resources:
 stages:
 - stage: Build
   displayName: Build
+  
+  # &&ep tmp
+  condition: and('false', 'true')
+  
   jobs:
     - job: BuildPackages  # Build on linux, mac, windows
       strategy:
