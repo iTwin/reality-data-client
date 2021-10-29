@@ -30,7 +30,9 @@ stages:
       pool:
         vmImage: $(imageName) # Which pool to use for the job
         environment: qa-tests-integration
-        variables:
+
+      steps:
+        env:
           IMJS_DEFAULT_RELYING_PARTY_URI: "https://connect-wsg20.bentley.com"  #todo might not be required
           IMJS_BUDDI_RESOLVE_URL_USING_REGION: "102"
           IMJS_URL_PREFIX: "qa-"
@@ -42,8 +44,6 @@ stages:
           IMJS_OIDC_BROWSER_TEST_REDIRECT_URI: "http://localhost:5001/signin-oidc"
           IMJS_OIDC_BROWSER_TEST_SCOPES: "imodels:modify openid profile organization email storage:read itwinjs realitydata:modify realitydata:read library:read imodels:read storage:modify"
           shouldFixSlashes: true
-
-      steps:
       - script: npm install
         displayName: 'Install dependencies'
 
