@@ -57,6 +57,10 @@ stages:
           echo ${{ variables.one }} # outputs initialValue
           echo $(one) # outputs secondValue
         displayName: Second variable pass
+      - script: |
+          echo Condition is met
+        displayName: Test condition
+        condition: or(eq(variables['test1'], 'mytest1'), eq(variables['variables.test1'], 'mytest1'))
 
 
 
