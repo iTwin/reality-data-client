@@ -91,14 +91,14 @@ stages:
 #         Current error: Job DeployToNPMJs_RealityDataClient: Environment npmjs-(imodeljs-admin) could not 
 #         be found. The environment does not exist or has not been authorized for use.
 
-# - stage: Publish
-#   displayName: Publish
-#   condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
-#   dependsOn: Build
+- stage: Publish
+  displayName: Publish
+  condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
+  dependsOn: Build
 
-#   jobs:
-#     - template: templates/npmjs-publish-deployment.yaml@build-pipeline-scripts
-#       parameters:
-#         path: '*.tgz'
-#         artifactName: RealityDataClient
-#         name: RealityDataClient
+  jobs:
+    - template: templates/npmjs-publish-deployment.yaml@build-pipeline-scripts
+      parameters:
+        path: '*.tgz'
+        artifactName: RealityDataClient
+        name: RealityDataClient
