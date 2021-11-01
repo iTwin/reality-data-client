@@ -43,6 +43,7 @@ stages:
           IMJS_OIDC_BROWSER_TEST_CLIENT_ID: "spa-PpFCmdU5cHuC4WdeEKp0bAxo0"
           IMJS_OIDC_BROWSER_TEST_REDIRECT_URI: "http://localhost:5001/signin-oidc"
           IMJS_OIDC_BROWSER_TEST_SCOPES: "imodels:modify openid profile organization email storage:read itwinjs realitydata:modify realitydata:read library:read imodels:read storage:modify"
+
       - script: npm install
         displayName: 'Install dependencies'
 
