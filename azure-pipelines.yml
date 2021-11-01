@@ -17,6 +17,7 @@ resources:
 stages:
 - stage: Build
   displayName: Build
+  
   jobs:
     - job: BuildPackages  # Build on linux, mac, windows
       strategy:
@@ -38,7 +39,7 @@ stages:
 
       - script: npm run lint
         displayName: 'Lint'
-      
+
       # integration tests
       #- script: npm run test:integration
       #  displayName: npm run test:integration
@@ -86,19 +87,14 @@ stages:
         displayName: 'Publish Reality Data client'
         condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
 
-# TODO -  Activate this stage when we have authorization to access to npmjs-(imodeljs-admin) environment.
-#
-#         Current error: Job DeployToNPMJs_RealityDataClient: Environment npmjs-(imodeljs-admin) could not 
-#         be found. The environment does not exist or has not been authorized for use.
+- stage: Publish
+  displayName: Publish
+  condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
+  dependsOn: Build
 
-# - stage: Publish
-#   displayName: Publish
-#   condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
-#   dependsOn: Build
-
-#   jobs:
-#     - template: templates/npmjs-publish-deployment.yaml@build-pipeline-scripts
-#       parameters:
-#         path: '*.tgz'
-#         artifactName: RealityDataClient
-#         name: RealityDataClient
+  jobs:
+    - template: templates/npmjs-publish-deployment.yaml@build-pipeline-scripts
+      parameters:
+        path: '*.tgz'
+        artifactName: RealityDataClient
+        name: RealityDataClient
