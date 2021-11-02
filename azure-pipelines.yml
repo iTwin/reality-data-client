@@ -30,6 +30,14 @@ stages:
       pool:
         vmImage: $(imageName) # Which pool to use for the job
       steps:
+      - powershell: |
+        # Using the mapped env var:
+        # Write-Host "This works: $env:IMJS_TEST_MANAGER_USER_PASSWORD"    # Recommended
+        # Write-Host "This works2: $env:IMJS_TEST_REGULAR_USER_PASSWORD"    # Recommended
+        env:
+          MY_MAPPED_ENV_VAR: $(mySecret) # right way to map to an env variable
+          IMJS_TEST_MANAGER_USER_PASSWORD : $(TEST_MANAGER_USER_PASSWORD)
+          IMJS_TEST_REGULAR_USER_PASSWORD : $(TEST_REGULAR_USER_PASSWORD)
       - script: npm install
         displayName: 'Install dependencies'
 
