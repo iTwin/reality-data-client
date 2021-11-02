@@ -17,6 +17,7 @@ resources:
 stages:
 - stage: Build
   displayName: Build
+  
   jobs:
     - job: BuildPackages  # Build on linux, mac, windows
       strategy:
@@ -51,7 +52,7 @@ stages:
 
       - script: npm run lint
         displayName: 'Lint'
-      
+
       # integration tests
       - script: npm run test:integration
         displayName: npm run test:integration
