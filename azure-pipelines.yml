@@ -31,20 +31,16 @@ stages:
         vmImage: $(imageName) # Which pool to use for the job
       steps:
       - bash: |
-          # All of these variables are,
-          #   1. Set in the "Variables" tab with a slightly different name (dropped "test" from each one)
-          #   2. Use the "Environment Variables" section below, and remapped to a new name
-          #   3. Set as the correct name below
-          #
+          # Secret variables must follow this recipe :
+          #   1. Set in the "Variables" tab in Azure Pipelines UI with a slightly different name ( here, we dropped "imjs" from each one)
+          #   2. Use this bash script step to first set secret variable values in a temporary variable (see env:)
+          #   3. Use the ##vso[task.setvariable command as below, to use the temporary variable to then set the secret value to the correct variable name in a more global scope.
           #  This is done so that we can keep the values secret within the build pipeline but then decrypt them in the environment when actually running the tests.
           #   > A better solution would be to figure out how to decrypt in Node itself
           echo "##vso[task.setvariable variable=IMJS_TEST_REGULAR_USER_PASSWORD;]$reg_user_pass"
           echo "##vso[task.setvariable variable=IMJS_TEST_MANAGER_USER_PASSWORD;]$manager_user_pass"
-          echo patate : $(reg_user_pass)
         displayName: 'Add config to environment'
         env:
-           #test_reg_password: $(imjs_regular_user_password)
-          # MY_MAPPED_ENV_VAR: $(mySecret) # right way to map to an env variable
           manager_user_pass : $(TEST_MANAGER_USER_PASSWORD)
           reg_user_pass : $(TEST_REGULAR_USER_PASSWORD)
       - script: npm install
