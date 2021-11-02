@@ -109,7 +109,18 @@ stages:
           echo DollarAgentOS: $(Agent.OS)
           echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
         displayName: Show variables 2
-      
+
+      # &&ep test
+      - script: |
+          echo =========================
+          dir /s
+          echo =========================
+          echo =========================
+          dir
+          echo =========================
+        displayName: Print directories
+
+      # &&ep test
       - script: |
           echo Condition OK - Can publish
         displayName: Test condition
