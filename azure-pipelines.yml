@@ -99,6 +99,24 @@ stages:
         displayName: 'Publish Reality Data client'
         condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
 
+
+      # &&ep test
+      - script: |
+          echo try_publish: ${{ variables.try_publish }} 
+          echo SourceBranch: ${{ variables['Build.SourceBranch'] }} 
+          echo Agent.OS: ${{ variables['Agent.OS'] }} 
+          echo DollarAgentOS: $(Agent.OS)
+          echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
+        displayName: Show variables 2
+      
+      - script: |
+          echo Condition OK - Can publish
+        displayName: Test condition
+        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Agent.OS'], 'Linux'))
+
+
+
+
 - stage: Publish
   displayName: Publish
   condition: and(succeeded(), eq(dependencies.Build.outputs['BuildPackages.linux.info.shouldPublish'], 'true'))
