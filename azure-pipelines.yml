@@ -30,12 +30,20 @@ stages:
       pool:
         vmImage: $(imageName) # Which pool to use for the job
       steps:
-      - powershell: |
-        # Using the mapped env var:
-        # Write-Host "This works: $env:IMJS_TEST_MANAGER_USER_PASSWORD"    # Recommended
-        # Write-Host "This works2: $env:IMJS_TEST_REGULAR_USER_PASSWORD"    # Recommended
+      - bash: |
+          # All of these variables are,
+          #   1. Set in the "Variables" tab with a slightly different name (dropped "test" from each one)
+          #   2. Use the "Environment Variables" section below, and remapped to a new name
+          #   3. Set as the correct name below
+          #
+          #  This is done so that we can keep the values secret within the build pipeline but then decrypt them in the environment when actually running the tests.
+          #   > A better solution would be to figure out how to decrypt in Node itself
+          echo "##vso[task.setvariable variable=IMJS_TEST_REGULAR_USER_PASSWORD;]$TEST_REGULAR_USER_PASSWORD"
+          echo "##vso[task.setvariable variable=IMJS_TEST_MANAGER_USER_PASSWORD;]$TEST_MANAGER_USER_PASSWORD"
+        displayName: 'Add config to environment'
         env:
-          MY_MAPPED_ENV_VAR: $(mySecret) # right way to map to an env variable
+           #test_reg_password: $(imjs_regular_user_password)
+          # MY_MAPPED_ENV_VAR: $(mySecret) # right way to map to an env variable
           IMJS_TEST_MANAGER_USER_PASSWORD : $(TEST_MANAGER_USER_PASSWORD)
           IMJS_TEST_REGULAR_USER_PASSWORD : $(TEST_REGULAR_USER_PASSWORD)
       - script: npm install
