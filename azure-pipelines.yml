@@ -50,6 +50,16 @@ stages:
           echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
         displayName: Show variables
 
+      # &&ep test
+      - script: |
+          echo =========================
+          dir /s
+          echo =========================
+          echo =========================
+          dir
+          echo =========================
+        displayName: Print directories
+
 
 
       # integration tests
@@ -95,7 +105,7 @@ stages:
         condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Agent.OS'], 'Linux'))
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)/itwin-reality-data-client-$(info.realityDataClientVersion).tgz'
+          PathtoPublish: '$(Build.SourcesDirectory)/bentley-reality-data-client-$(info.realityDataClientVersion).tgz'
           artifactName: realityDataClient
         displayName: 'Publish Reality Data client'
         condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
@@ -109,16 +119,6 @@ stages:
           echo DollarAgentOS: $(Agent.OS)
           echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
         displayName: Show variables 2
-
-      # &&ep test
-      - script: |
-          echo =========================
-          dir /s
-          echo =========================
-          echo =========================
-          dir
-          echo =========================
-        displayName: Print directories
 
       # &&ep test
       - script: |
