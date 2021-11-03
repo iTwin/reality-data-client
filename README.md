@@ -1,10 +1,10 @@
-# @bentley/reality-data-client
+# @iTwin/reality-data-client
 
 Copyright © Bentley Systems, Incorporated. All rights reserved. See LICENSE.md for license terms and full copyright notice.
 
 ## Description
 
-The __@bentley/reality-data-client__ package contains client wrappers for sending requests to the ProjectWise Context Share (Reality Data Service).
+The __@iTwin/reality-data-client__ package contains client wrappers for sending requests to the Reality Data API.
 
 ## Documentation
 
