@@ -26,7 +26,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   // const realityDataServiceClient: RealityDataAccessClient = new RealityDataAccessClient();
   // const imsClient: ImsAuthorizationClient = new ImsAuthorizationClient();
 
-  let iTwinId: GuidString;
+  let globalProjectId: GuidString;
 
   const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
   // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
@@ -35,8 +35,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getITwinByName(accessToken, TestConfig.iTwinName)).id;
-    chai.assert.isDefined(iTwinId);
+    globalProjectId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    chai.assert.isDefined(globalProjectId);
   });
 
   it("should return a RealityData URL properly from a given ID", async () => {
@@ -45,7 +45,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const projectId = "ec002f93-f0c1-4ab3-a407-351848eba233";
       const realityDataAccessClient = new RealityDataAccessClient();
 
-      // test with projectId (iTwinId)
+      // test with projectId
       const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
       let expectedUrl = `https://api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5?projectId=${projectId}`;
       const urlPrefix = process.env.IMJS_URL_PREFIX;
@@ -64,7 +64,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient();
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      const realityData = await realityDataAccessClient.getRealityData(accessToken, globalProjectId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
 
@@ -77,7 +77,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should be able to retrieve the azure blob url", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
-    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, globalProjectId, tilesId);
     const url: URL = await realityData.getBlobUrl(accessToken, "test");
     chai.assert(url);
     chai.assert(url.toString().includes("test"));
