@@ -39,15 +39,13 @@
     "url": "http://www.bentley.com"
   },
   "dependencies": {
+    "@bentley/itwin-client": "^3.0.0-dev.79",
     "@itwin/core-bentley": "^3.0.0-dev.79",
-    "@bentley/itwin-client": "^3.0.0-dev.79"
+    "@itwin/projects-client": "^0.2.0"
   },
   "devDependencies": {
-    "@bentley/itwin-client": "^3.0.0-dev.79",
-    "@bentley/itwin-registry-client": "^3.0.0-dev.78",
     "@itwin/build-tools": "^3.0.0-dev.79",
     "@itwin/certa": "^3.0.0-dev.79",
-    "@itwin/core-bentley": "^3.0.0-dev.79",
     "@itwin/eslint-plugin": "^3.0.0-dev.79",
     "@itwin/oidc-signin-tool": "^3.0.0-dev.79",
     "@types/chai": "^4.1.4",

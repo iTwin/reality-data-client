@@ -35,7 +35,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getITwinByName(accessToken, TestConfig.iTwinName)).id;
+    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
     chai.assert.isDefined(iTwinId);
   });
 
