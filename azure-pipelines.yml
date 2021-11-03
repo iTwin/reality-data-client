@@ -96,7 +96,7 @@ stages:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/itwin-reality-data-client-$(info.realityDataClientVersion).tgz'
-          artifactName: realityDataClient
+          artifactName: RealityDataClient
         displayName: 'Publish Reality Data client'
         condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
 
