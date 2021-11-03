@@ -40,28 +40,6 @@ stages:
       - script: npm run lint
         displayName: 'Lint'
 
-
-      # &&ep test
-      - script: |
-          echo try_publish: ${{ variables.try_publish }} 
-          echo SourceBranch: ${{ variables['Build.SourceBranch'] }} 
-          echo Agent.OS: ${{ variables['Agent.OS'] }} 
-          echo DollarAgentOS: $(Agent.OS)
-          echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
-        displayName: Show variables
-
-      # &&ep test
-      - script: |
-          echo =========================
-          dir /s
-          echo =========================
-          echo =========================
-          dir
-          echo =========================
-        displayName: Print directories
-
-
-
       # integration tests
       #- script: npm run test:integration
       #  displayName: npm run test:integration
@@ -101,33 +79,13 @@ stages:
           echo "##vso[task.setvariable variable=realityDataClientName;isOutput=true]$realityDataClientName"
         displayName: 'Store Build Info'
         name: info
-# &&ep td        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Agent.OS'], 'Linux'))
-        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Agent.OS'], 'Linux'))
+        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Agent.OS'], 'Linux'))
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/itwin-reality-data-client-$(info.realityDataClientVersion).tgz'
           artifactName: realityDataClient
         displayName: 'Publish Reality Data client'
         condition: and(succeeded(), eq(variables['info.shouldPublish'], 'true'))
-
-
-      # &&ep test
-      - script: |
-          echo try_publish: ${{ variables.try_publish }} 
-          echo SourceBranch: ${{ variables['Build.SourceBranch'] }} 
-          echo Agent.OS: ${{ variables['Agent.OS'] }} 
-          echo DollarAgentOS: $(Agent.OS)
-          echo shouldPublish: ${{ variables['info.shouldPublish'] }} 
-        displayName: Show variables 2
-
-      # &&ep test
-      - script: |
-          echo Condition OK - Can publish
-        displayName: Test condition
-        condition: and(succeeded(), eq(variables.try_publish, true), eq(variables['Agent.OS'], 'Linux'))
-
-
-
 
 - stage: Publish
   displayName: Publish
