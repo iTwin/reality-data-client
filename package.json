@@ -1,7 +1,7 @@
 {
-  "name": "@bentley/reality-data-client",
+  "name": "@itwin/reality-data-client",
   "version": "3.0.0-dev.80",
-  "description": "iModel.js Reality Data Client",
+  "description": "Reality Data Client for the iTwin platform",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
   "typings": "lib/cjs/reality-data-client",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/imodeljs/imodeljs/tree/master/clients/reality-data"
+    "url": "https://github.com/iTwin/reality-data-client"
   },
   "scripts": {
     "compile": "npm run -s build",
@@ -29,6 +29,7 @@
   },
   "keywords": [
     "Bentley",
+    "iTwin",
     "BIM",
     "iModel",
     "Reality Data Client"
