@@ -8,130 +8,23 @@
  * @module RealityDataClient
  */
 
-import { AccessToken, GuidString} from "@itwin/core-bentley";
-import { request, RequestOptions } from "@bentley/itwin-client";
+import { AccessToken, Guid, GuidString } from "@itwin/core-bentley";
+import { CartographicRange, ContextRealityModelProps, OrbitGtBlobProps } from "@itwin/core-common";
+import { IModelConnection, SpatialModelState } from "@itwin/core-frontend";
+import { request } from "@bentley/itwin-client";
 import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
+import { getRequestOptions } from "./RequestOptions";
+import { ITwinRealityData } from "./RealityData";
 // TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
 // import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
 
-/**
- * Build the request methods, headers, and other options
- * @param accessTokenString The client access token string
- */
-function getRequestOptions(accessTokenString: string): RequestOptions {
-  return {
-    method: "GET",
-    headers: {
-      "authorization": accessTokenString,
-      "content-type": "application/json",
-      "user-agent": "RealityData Client (iTwinjs) v3.0.0-dev.##", // TODO figure out how to include build number
-      "accept": "application/vnd.bentley.v1+json",
-    },
-  };
-}
-
-export interface Extent {
-  southWest: Point;
-  northEast: Point;
-}
-
-export interface Point {
-  latitude: number;
-  longitude: number;
-}
-
-export interface Acquisition {
-  startDateTime: Date;
-  endDateTime?: Date;
-  acquirer?: string;
-}
-
-/** RealityData
- * This class implements a Reality Data stored in ProjectWise Context Share (Reality Data Service)
- * Data is accessed directly through methods of the reality data instance.
- * Access to the data required a properly entitled token though the access to the blob is controlled through
- * an Azure blob URL, the token may be required to obtain this Azure blob URL or refresh it.
- * The Azure blob URL is considered valid for an hour and is refreshed after 50 minutes.
- * In addition to the reality data properties, and Azure blob URL and internal states, a reality data also contains
- * the identification of the iTwin to be used for access permissions and
- * may contain a RealityDataClient to obtain the WSG client specialization to communicate with ProjectWise Context Share (to obtain the Azure blob URL).
- * @internal
- */
-class ITwinRealityData implements RealityData {
-
-  public id: GuidString;
-  public displayName?: string;
-  public dataset?: string;
-  public group?: string;
-  public dataLocation?: string;
-  public description?: string;
-  public rootDocument?: string;
-  public acquisition?: Acquisition;
-  public size?: number;
-  public authoring?: boolean;
-  public classification?: string;
-  public type?: string;
-  public extent?: Extent;
-  public modifiedDateTime?: Date;
-  public lastAccessedDateTime?: Date;
-  public createdDateTime?: Date;
-
-  // Link to client to fetch the blob url
-  public client: undefined | RealityDataAccessClient;
-
-  // The GUID of the iTwin used when using the client.
-  public iTwinId: GuidString;
-
-  /**
-   * Creates an instance of RealityData.
-   */
-  public constructor() {
-  }
-
-  /**
-   * Gets string url to fetch blob data from. Access is read-only.
-   * @param accessToken The client request context.
-   * @param blobPath name or path of tile
-   * @returns string url for blob data
-   */
-  public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
-    const url = await this.getContainerUrl(accessToken);
-    if (blobPath === undefined)
-      return url;
-
-    const host = `${url.origin + url.pathname}/`;
-
-    const query = url.search;
-
-    return new URL(`${host}${blobPath}${query}`);
-  }
-
-  /**
-   * Gets a tile access url URL object
-   * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
-   * @returns app URL object for blob url
-   */
-  private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
-    // Normally the client is set when the reality data is extracted for the client but it could be undefined
-    // if the reality data instance is created manually.
-    if (!this.client)
-      this.client = new RealityDataAccessClient();
-
-    const permissions = (writeAccess === true ? "Write" : "Read");
-
-    const requestOptions = getRequestOptions(accessToken);
-    try {
-
-      const response = await request(`${ this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
-
-      if(!response.body.container) {
-        new Error("API returned an unexpected response.");
-      }
-      return new URL(response.body.container._links.containerUrl.href);
-    } catch (errorResponse: any) {
-      throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
-    }
-  }
+export interface RealityDataQueryCriteria {
+  /** The Id of the iTwin context. */
+  iTwinId: GuidString;
+  /** If supplied, only reality data overlapping this range will be included. */
+  range?: CartographicRange;
+  /** If supplied, reality data already referenced by a [[GeometricModelState]] within this iModel will be excluded. */
+  filterIModel?: IModelConnection;
 }
 
 /**
@@ -168,7 +61,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    */
   public async getRealityDataUrl(iTwinId: string | undefined, realityDataId: string): Promise<string> {
 
-    if(iTwinId) {
+    if (iTwinId) {
       return `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
     }
     throw new Error("iTwinId is not set.");
@@ -188,34 +81,166 @@ export class RealityDataAccessClient implements RealityDataAccess {
     try {
 
       const realityDataResponse = await request(url, getRequestOptions(accessToken));
-      if(realityDataResponse.status !== 200 )
+      if (realityDataResponse.status !== 200)
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
-      const realityData = new ITwinRealityData();
-
-      // fill in properties
-
-      realityData.client = this;
-      realityData.id = realityDataResponse.body.realityData.id;
-      realityData.displayName = realityDataResponse.body.realityData.displayName;
-      realityData.dataset = realityDataResponse.body.realityData.dataset;
-      realityData.group = realityDataResponse.body.realityData.group;
-      realityData.dataLocation = realityDataResponse.body.realityData.dataLocation;
-      realityData.rootDocument = realityDataResponse.body.realityData.rootDocument;
-      realityData.acquisition = realityDataResponse.body.realityData.acquisition;
-      realityData.size = realityDataResponse.body.realityData.size;
-      realityData.authoring = realityDataResponse.body.realityData.authoring;
-      realityData.classification = realityDataResponse.body.realityData.classification;
-      realityData.type = realityDataResponse.body.realityData.type;
-      realityData.extent = realityDataResponse.body.realityData.extent;
-      realityData.modifiedDateTime = realityDataResponse.body.realityData.modifiedDateTime;
-      realityData.lastAccessedDateTime = realityDataResponse.body.realityData.lastAccessedDateTime;
-      realityData.createdDateTime = realityDataResponse.body.realityData.createdDateTime;
-      realityData.iTwinId = iTwinId!;
+      const realityData = new ITwinRealityData(realityDataResponse.body.realityData, iTwinId);
 
       return realityData;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
+  }
+
+  /**
+  * Gets reality datas with all of its properties
+  * @param iTwinId id of associated iTwin.
+  * @returns The requested reality data.
+  */
+  private async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined): Promise<RealityData[]> {
+    try {
+      const url = `${this.baseUrl}?projectId=${iTwinId}`;
+      const realityDatasResponse = await request(url, getRequestOptions(accessToken));
+
+      if (realityDatasResponse.status !== 200)
+        throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
+
+
+      let realityDatas: ITwinRealityData[] = [];
+
+      realityDatasResponse.body.forEach((realityData: any) => {
+        realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
+      });
+
+      return realityDatas;
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
+    }
+  }
+
+  /**
+  * Gets all reality data associated with the iTwin. Consider using getRealityDataInITwinOverlapping() if spatial extent is known.
+  * @param iTwinId id of associated iTwin
+  * @param type  reality data type to query or all supported type if undefined
+  * @returns an array of RealityData that are associated to the iTwin.
+  */
+  public async getRealityDataInITwin(accessToken: AccessToken, iTwinId: string): Promise<RealityData[]> {
+
+    const realityDatas: RealityData[] = await this.getRealityDatas(accessToken, iTwinId);
+    return realityDatas;
+  }
+
+
+  /** Query for reality data associated with an iTwin.
+   * @param criteria Criteria by which to query.
+   * @returns Properties of reality data associated with the context, filtered according to the criteria.
+   * @public
+   */
+  public async queryRealityData(accessToken: AccessToken, criteria: RealityDataQueryCriteria): Promise<ContextRealityModelProps[]> {
+    const iTwinId = criteria.iTwinId;
+    const availableRealityModels: ContextRealityModelProps[] = [];
+
+    if (!accessToken)
+      return availableRealityModels;
+
+    const client = new RealityDataAccessClient();
+
+    let realityData = await client.getRealityDataInITwin(accessToken, iTwinId) as ITwinRealityData[];
+
+    // TODO implement the following when APIM supports querying
+    // let realityData: RealityData[];
+    // if (criteria.range) {
+    //   const iModelRange = criteria.range.getLongitudeLatitudeBoundingBox();
+    //   realityData = await client.getRealityDataInITwinOverlapping(accessToken, iTwinId, Angle.radiansToDegrees(iModelRange.low.x),
+    //     Angle.radiansToDegrees(iModelRange.high.x),
+    //     Angle.radiansToDegrees(iModelRange.low.y),
+    //     Angle.radiansToDegrees(iModelRange.high.y));
+    // } else {
+    //   realityData = await client.getRealityDataInITwin(accessToken, iTwinId);
+    // }
+
+    // Get set of URLs that are directly attached to the model.
+    const modelRealityDataIds = new Set<string>();
+    if (criteria.filterIModel) {
+      const query = { from: SpatialModelState.classFullName, wantPrivate: false };
+      const props = await criteria.filterIModel.models.queryProps(query);
+      for (const prop of props)
+        if (prop.jsonProperties !== undefined && prop.jsonProperties.tilesetUrl) {
+          const realityDataId = client.getRealityDataIdFromUrl(prop.jsonProperties.tilesetUrl);
+          if (realityDataId)
+            modelRealityDataIds.add(realityDataId);
+        }
+    }
+
+    // We obtain the reality data name, and RDS URL for each RD returned.
+    for (const currentRealityData of realityData) {
+      let realityDataName: string = "";
+      let validRd: boolean = true;
+      if (currentRealityData.description && currentRealityData.description !== "") {
+        realityDataName = currentRealityData.description;
+      } else if (currentRealityData.rootDocument) {
+        // In case root document contains a relative path we only keep the filename
+        const rootDocParts = (currentRealityData.rootDocument).split("/");
+        realityDataName = rootDocParts[rootDocParts.length - 1];
+      } else {
+        // This case would not occur normally but if it does the RD is considered invalid
+        validRd = false;
+      }
+
+      // If the RealityData is valid then we add it to the list.
+      if (currentRealityData.id && validRd === true) {
+        const url = await client.getRealityDataUrl(iTwinId, currentRealityData.id);
+        let opcConfig: OrbitGtBlobProps | undefined;
+
+        if (currentRealityData.type && (currentRealityData.type.toUpperCase() === "OPC") && currentRealityData.rootDocument !== undefined) {
+          const rootDocUrl = await currentRealityData.getBlobUrl(accessToken, currentRealityData.rootDocument);
+          opcConfig = {
+            rdsUrl: "",
+            containerName: "",
+            blobFileName: rootDocUrl.toString(),
+            accountName: "",
+            sasToken: "",
+          };
+        }
+
+        if (!modelRealityDataIds.has(currentRealityData.id))
+          availableRealityModels.push({
+            tilesetUrl: url, name: realityDataName, description: (currentRealityData.description ? currentRealityData.description : ""),
+            realityDataId: currentRealityData.id, orbitGtBlob: opcConfig,
+          });
+      }
+    }
+
+    return availableRealityModels;
+  }
+
+   // ###TODO temporary means of extracting the tileId and iTwinId from the given url
+  // This is the method that determines if the url refers to Reality Data stored on PW Context Share. If not then undefined is returned.
+  /**
+   * This is the method that determines if the url refers to Reality Data stored on PW Context Share. If not then undefined is returned.
+   * @param url A fully formed URL to a reality data or a reality data folder or document of the form:
+   *              https://{Host}/{version}/Repositories/S3MXECPlugin--{ITwinId}/S3MX/RealityData/{RealityDataId}
+   *              https://{Host}/{version}/Repositories/S3MXECPlugin--{ITwinId}/S3MX/Folder/{RealityDataId}~2F{Folder}
+   *              https://{Host}/{version}/Repositories/S3MXECPlugin--{ITwinId}/S3MX/Document/{RealityDataId}~2F{Full Document Path and name}'
+   *            Where {Host} represents the Reality Data Service server (ex: connect-realitydataservices.bentley.com). This value is ignored since the
+   *            actual host server name depends on the environment or can be changed in the future.
+   *            Where {version} is the Bentley Web Service Gateway protocol version. This value is ignored but the version must be supported by Reality Data Service.
+   *            Where {Folder} and {Document} are the full folder or document path relative to the Reality Data root.
+   *            {RealityDataId} is extracted after validation of the URL and returned.
+   *            {ITwinId} is ignored.
+   * @returns A string containing the Reality Data Identifier (otherwise named tile id). If the URL is not a reality data service URL then undefined is returned.
+   */
+  private getRealityDataIdFromUrl(url: string): string | undefined {
+    let realityDataId: string | undefined;
+
+    const formattedUrl = url.replace(/~2F/g, "/").replace(/\\/g, "/");
+    const urlParts = formattedUrl.split("/").map((entry: string) => entry.replace(/%2D/g, "-"));
+
+    const partOffset: number = ((urlParts[1] === "") ? 4 : 3);
+    if ((urlParts[partOffset] === "Repositories") && urlParts[partOffset + 1].match("S3MXECPlugin--*") && (urlParts[partOffset + 2] === "S3MX")) {
+      // URL appears tpo be a correctly formed URL to Reality Data Service ... obtain the first GUID
+      realityDataId = urlParts.find(Guid.isGuid);
+    }
+    return realityDataId;
   }
 }
