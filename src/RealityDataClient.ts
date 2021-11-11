@@ -79,12 +79,11 @@ export class RealityDataAccessClient implements RealityDataAccess {
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 
     try {
-
       const realityDataResponse = await request(url, getRequestOptions(accessToken));
       if (realityDataResponse.status !== 200)
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
-      const realityData = new ITwinRealityData(realityDataResponse.body.realityData, iTwinId);
+      const realityData = new ITwinRealityData(this, realityDataResponse.body.realityData, iTwinId);
 
       return realityData;
     } catch (errorResponse: any) {
@@ -105,10 +104,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
       if (realityDatasResponse.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
 
-
       let realityDatas: ITwinRealityData[] = [];
+      let realityDatasResponseBody = realityDatasResponse.body;
 
-      realityDatasResponse.body.forEach((realityData: any) => {
+      realityDatasResponseBody.realityData.forEach((realityData: any) => {
         realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
       });
 

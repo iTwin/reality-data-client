@@ -11,6 +11,8 @@ import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 // import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
 import {/* DefaultSupportedTypes, */ RealityDataAccessClient } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
+import { DefaultSupportedTypes } from "../../realityDataAccessProps";
+import { ITwinRealityData } from "../../RealityData";
 
 chai.config.showDiff = true;
 
@@ -26,7 +28,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   // const realityDataServiceClient: RealityDataAccessClient = new RealityDataAccessClient();
   // const imsClient: ImsAuthorizationClient = new ImsAuthorizationClient();
 
-  let globalProjectId: GuidString;
+  let iTwinId: GuidString;
 
   const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
   // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
@@ -35,8 +37,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    globalProjectId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
-    chai.assert.isDefined(globalProjectId);
+    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    chai.assert.isDefined(iTwinId);
   });
 
   it("should return a RealityData URL properly from a given ID", async () => {
@@ -64,10 +66,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient();
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, globalProjectId, tilesId);
+      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
-
       await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
 
     } catch (errorResponse: any) {
@@ -77,10 +78,24 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should be able to retrieve the azure blob url", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
-    const realityData = await realityDataAccessClient.getRealityData(accessToken, globalProjectId, tilesId);
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
     const url: URL = await realityData.getBlobUrl(accessToken, "test");
     chai.assert(url);
     chai.assert(url.toString().includes("test"));
+  });
+
+  it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient();
+    const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, iTwinId) as ITwinRealityData[];
+
+    realityData.forEach((value) => {
+      //chai.assert(value.rootDocument ); // not every RD has a root document
+      chai.assert(value.iTwinId === iTwinId);
+      chai.assert(value.type);
+      chai.assert(value.id);
+    });
+
+    chai.assert(realityData);
   });
 
   /*

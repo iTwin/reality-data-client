@@ -66,14 +66,16 @@ export class ITwinRealityData implements RealityData {
      */
     public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
-        this.client = client;
-        if (realityData) {
+        this.client = client!;
 
+        if (realityData) {
             // fill in properties
+            this.id = realityData.id
             this.displayName = realityData.displayName;
             this.dataset = realityData.dataset;
             this.group = realityData.group;
             this.dataLocation = realityData.dataLocation;
+            this.description = realityData.description;
             this.rootDocument = realityData.rootDocument;
             this.acquisition = realityData.acquisition;
             this.size = realityData.size;
@@ -102,9 +104,7 @@ export class ITwinRealityData implements RealityData {
             return url;
 
         const host = `${url.origin + url.pathname}/`;
-
         const query = url.search;
-
         return new URL(`${host}${blobPath}${query}`);
     }
 
@@ -120,7 +120,6 @@ export class ITwinRealityData implements RealityData {
             this.client = new RealityDataAccessClient();
 
         const permissions = (writeAccess === true ? "Write" : "Read");
-
         const requestOptions = getRequestOptions(accessToken);
         try {
 
