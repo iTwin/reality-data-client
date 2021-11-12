@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
 /*---------------------------------------------------------------------------------------------
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { RealityDataAccessClient } from "./reality-data-client";
+import { RealityDataAccessClient } from "./RealityDataClient";
 import { ITwinRealityData } from "./RealityData";
 import {  TestUtility } from "@itwin/oidc-signin-tool";
 
@@ -14,17 +15,17 @@ import * as dotenv from "dotenv";
  */
 export async function main() {
 
-    dotenv.config();
+  dotenv.config();
 
-    const testUser = {
-        "email": process.env.IMJS_TEST_REGULAR_USER_NAME!,
-        "password": process.env.IMJS_TEST_REGULAR_USER_PASSWORD!
-    }
-    const accessToken =  await TestUtility.getAccessToken(testUser);
+  const testUser = {
+    email: process.env.IMJS_TEST_REGULAR_USER_NAME!,
+    password: process.env.IMJS_TEST_REGULAR_USER_PASSWORD!,
+  };
+  const accessToken =  await TestUtility.getAccessToken(testUser);
 
-    const realityDataAccessClient = new RealityDataAccessClient();
-    const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, "ec002f93-f0c1-4ab3-a407-351848eba233") as ITwinRealityData[];
+  const realityDataAccessClient = new RealityDataAccessClient();
+  const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, "ec002f93-f0c1-4ab3-a407-351848eba233") as ITwinRealityData[];
 
-    console.log(realityData);
+  console.log(realityData);
 }
-main();
+void main();

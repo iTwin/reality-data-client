@@ -104,8 +104,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
       if (realityDatasResponse.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
 
-      let realityDatas: ITwinRealityData[] = [];
-      let realityDatasResponseBody = realityDatasResponse.body;
+      const realityDatas: ITwinRealityData[] = [];
+      const realityDatasResponseBody = realityDatasResponse.body;
 
       realityDatasResponseBody.realityData.forEach((realityData: any) => {
         realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
@@ -129,7 +129,6 @@ export class RealityDataAccessClient implements RealityDataAccess {
     return realityDatas;
   }
 
-
   /** Query for reality data associated with an iTwin.
    * @param criteria Criteria by which to query.
    * @returns Properties of reality data associated with the context, filtered according to the criteria.
@@ -144,7 +143,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
     const client = new RealityDataAccessClient();
 
-    let realityData = await client.getRealityDataInITwin(accessToken, iTwinId) as ITwinRealityData[];
+    const realityData = await client.getRealityDataInITwin(accessToken, iTwinId) as ITwinRealityData[];
 
     // TODO implement the following when APIM supports querying
     // let realityData: RealityData[];
@@ -213,7 +212,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     return availableRealityModels;
   }
 
-   // ###TODO temporary means of extracting the tileId and iTwinId from the given url
+  // ###TODO temporary means of extracting the tileId and iTwinId from the given url
   // This is the method that determines if the url refers to Reality Data stored on PW Context Share. If not then undefined is returned.
   /**
    * This is the method that determines if the url refers to Reality Data stored on PW Context Share. If not then undefined is returned.

@@ -10,19 +10,19 @@ import { request } from "@bentley/itwin-client";
 import { getRequestOptions } from "./RequestOptions";
 
 export interface Extent {
-    southWest: Point;
-    northEast: Point;
+  southWest: Point;
+  northEast: Point;
 }
 
 export interface Point {
-    latitude: number;
-    longitude: number;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Acquisition {
-    startDateTime: Date;
-    endDateTime?: Date;
-    acquirer?: string;
+  startDateTime: Date;
+  endDateTime?: Date;
+  acquirer?: string;
 }
 
 /** RealityData
@@ -38,99 +38,99 @@ export interface Acquisition {
  */
 export class ITwinRealityData implements RealityData {
 
-    public id: GuidString;
-    public displayName?: string;
-    public dataset?: string;
-    public group?: string;
-    public dataLocation?: string;
-    public description?: string;
-    public rootDocument?: string;
-    public acquisition?: Acquisition;
-    public size?: number;
-    public authoring?: boolean;
-    public classification?: string;
-    public type?: string;
-    public extent?: Extent;
-    public modifiedDateTime?: Date;
-    public lastAccessedDateTime?: Date;
-    public createdDateTime?: Date;
+  public id: GuidString;
+  public displayName?: string;
+  public dataset?: string;
+  public group?: string;
+  public dataLocation?: string;
+  public description?: string;
+  public rootDocument?: string;
+  public acquisition?: Acquisition;
+  public size?: number;
+  public authoring?: boolean;
+  public classification?: string;
+  public type?: string;
+  public extent?: Extent;
+  public modifiedDateTime?: Date;
+  public lastAccessedDateTime?: Date;
+  public createdDateTime?: Date;
 
-    // Link to client to fetch the blob url
-    public client: undefined | RealityDataAccessClient;
+  // Link to client to fetch the blob url
+  public client: undefined | RealityDataAccessClient;
 
-    // The GUID of the iTwin used when using the client.
-    public iTwinId: GuidString;
+  // The GUID of the iTwin used when using the client.
+  public iTwinId: GuidString;
 
-    /**
+  /**
      * Creates an instance of RealityData.
      */
-    public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
+  public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
-        this.client = client!;
+    this.client = client!;
 
-        if (realityData) {
-            // fill in properties
-            this.id = realityData.id
-            this.displayName = realityData.displayName;
-            this.dataset = realityData.dataset;
-            this.group = realityData.group;
-            this.dataLocation = realityData.dataLocation;
-            this.description = realityData.description;
-            this.rootDocument = realityData.rootDocument;
-            this.acquisition = realityData.acquisition;
-            this.size = realityData.size;
-            this.authoring = realityData.authoring;
-            this.classification = realityData.classification;
-            this.type = realityData.type;
-            this.extent = realityData.extent;
-            this.modifiedDateTime = realityData.modifiedDateTime;
-            this.lastAccessedDateTime = realityData.lastAccessedDateTime;
-            this.createdDateTime = realityData.createdDateTime;
-        }
-
-        if (iTwinId)
-            this.iTwinId = iTwinId;
+    if (realityData) {
+      // fill in properties
+      this.id = realityData.id;
+      this.displayName = realityData.displayName;
+      this.dataset = realityData.dataset;
+      this.group = realityData.group;
+      this.dataLocation = realityData.dataLocation;
+      this.description = realityData.description;
+      this.rootDocument = realityData.rootDocument;
+      this.acquisition = realityData.acquisition;
+      this.size = realityData.size;
+      this.authoring = realityData.authoring;
+      this.classification = realityData.classification;
+      this.type = realityData.type;
+      this.extent = realityData.extent;
+      this.modifiedDateTime = realityData.modifiedDateTime;
+      this.lastAccessedDateTime = realityData.lastAccessedDateTime;
+      this.createdDateTime = realityData.createdDateTime;
     }
 
-    /**
+    if (iTwinId)
+      this.iTwinId = iTwinId;
+  }
+
+  /**
      * Gets string url to fetch blob data from. Access is read-only.
      * @param accessToken The client request context.
      * @param blobPath name or path of tile
      * @returns string url for blob data
      */
-    public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
-        const url = await this.getContainerUrl(accessToken);
-        if (blobPath === undefined)
-            return url;
+  public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
+    const url = await this.getContainerUrl(accessToken);
+    if (blobPath === undefined)
+      return url;
 
-        const host = `${url.origin + url.pathname}/`;
-        const query = url.search;
-        return new URL(`${host}${blobPath}${query}`);
-    }
+    const host = `${url.origin + url.pathname}/`;
+    const query = url.search;
+    return new URL(`${host}${blobPath}${query}`);
+  }
 
-    /**
+  /**
      * Gets a tile access url URL object
      * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
      * @returns app URL object for blob url
      */
-    private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
-        // Normally the client is set when the reality data is extracted for the client but it could be undefined
-        // if the reality data instance is created manually.
-        if (!this.client)
-            this.client = new RealityDataAccessClient();
+  private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
+    // Normally the client is set when the reality data is extracted for the client but it could be undefined
+    // if the reality data instance is created manually.
+    if (!this.client)
+      this.client = new RealityDataAccessClient();
 
-        const permissions = (writeAccess === true ? "Write" : "Read");
-        const requestOptions = getRequestOptions(accessToken);
-        try {
+    const permissions = (writeAccess === true ? "Write" : "Read");
+    const requestOptions = getRequestOptions(accessToken);
+    try {
 
-            const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+      const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
 
-            if (!response.body.container) {
-                new Error("API returned an unexpected response.");
-            }
-            return new URL(response.body.container._links.containerUrl.href);
-        } catch (errorResponse: any) {
-            throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
-        }
+      if (!response.body.container) {
+        new Error("API returned an unexpected response.");
+      }
+      return new URL(response.body.container._links.containerUrl.href);
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
+  }
 }
