@@ -22,7 +22,6 @@ export interface RealityDataQueryCriteria {
   iTwinId: GuidString;
   /** If supplied, only reality data overlapping this range will be included. */
   range?: CartographicRange;
-  /** If supplied, reality data already referenced by a [[GeometricModelState]] within this iModel will be excluded. */
 }
 
 /**
