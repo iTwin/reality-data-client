@@ -44,7 +44,6 @@
     "@bentley/itwin-client": "^3.0.0-dev.79",
     "@itwin/core-bentley": "^3.0.0-dev.79",
     "@itwin/core-common": "^3.0.0-dev.79",
-    "@itwin/core-frontend": "^3.0.0-dev.79",
     "@itwin/projects-client": "^0.2.0",
     "@types/node": "^14.14.31"
   },

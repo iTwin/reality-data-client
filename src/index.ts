@@ -4,8 +4,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { RealityDataAccessClient } from "./RealityDataClient";
-import { ITwinRealityData } from "./RealityData";
+import { RealityDataAccessClient, RealityDataQueryCriteria } from "./RealityDataClient";
 import {  TestUtility } from "@itwin/oidc-signin-tool";
 
 import * as dotenv from "dotenv";
@@ -24,8 +23,12 @@ export async function main() {
   const accessToken =  await TestUtility.getAccessToken(testUser);
 
   const realityDataAccessClient = new RealityDataAccessClient();
-  const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, "ec002f93-f0c1-4ab3-a407-351848eba233") as ITwinRealityData[];
-
+  // const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, "ec002f93-f0c1-4ab3-a407-351848eba233") as ITwinRealityData[];
+  const realityDataQueryCriteria: RealityDataQueryCriteria = {
+    iTwinId: "ec002f93-f0c1-4ab3-a407-351848eba233",
+    range: undefined,
+  };
+  const realityData = await realityDataAccessClient.queryRealityData(accessToken, realityDataQueryCriteria);
   console.log(realityData);
 }
 void main();
