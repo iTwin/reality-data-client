@@ -8,7 +8,7 @@
  * @module RealityDataClient
  */
 
-import { AccessToken, GuidString } from "@itwin/core-bentley";
+import { AccessToken } from "@itwin/core-bentley";
 import { CartographicRange } from "@itwin/core-common";
 import { request } from "@bentley/itwin-client";
 import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
@@ -18,8 +18,6 @@ import { ITwinRealityData } from "./RealityData";
 // import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
 
 export interface RealityDataQueryCriteria {
-  /** The Id of the iTwin context. */
-  iTwinId: GuidString;
   /** If supplied, only reality data overlapping this range will be included. */
   range?: CartographicRange;
 }
@@ -89,11 +87,13 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-  * Gets reality datas with all of its properties
-  * @param iTwinId id of associated iTwin.
-  * @returns The requested reality data.
+  * Gets all reality data associated with the iTwin.
+  * @param accessToken The client request context.
+  * @param iTwinId id of associated iTwin
+  * @param criteria Criteria by which to query.
+  * @returns an array of RealityData that are associated to the iTwin.
   */
-  private async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined): Promise<RealityData[]> {
+  public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityData[]> {
     try {
       const url = `${this.baseUrl}?projectId=${iTwinId}`;
       const realityDatasResponse = await request(url, getRequestOptions(accessToken));
@@ -108,52 +108,21 @@ export class RealityDataAccessClient implements RealityDataAccess {
         realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
       });
 
+      // TODO implement the following when APIM supports querying
+      // let realityData: RealityData[];
+      if (criteria) {
+        //   const iModelRange = criteria.range.getLongitudeLatitudeBoundingBox();
+        //   realityData = await client.getRealityDataInITwinOverlapping(accessToken, iTwinId, Angle.radiansToDegrees(iModelRange.low.x),
+        //     Angle.radiansToDegrees(iModelRange.high.x),
+        //     Angle.radiansToDegrees(iModelRange.low.y),
+        //     Angle.radiansToDegrees(iModelRange.high.y));
+        // } else {
+        //   realityData = await client.getRealityDataInITwin(accessToken, iTwinId);
+      }
+
       return realityDatas;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
-  }
-
-  /**
-  * Gets all reality data associated with the iTwin. Consider using getRealityDataInITwinOverlapping() if spatial extent is known.
-  * @param iTwinId id of associated iTwin
-  * @param type  reality data type to query or all supported type if undefined
-  * @returns an array of RealityData that are associated to the iTwin.
-  */
-  public async getRealityDataInITwin(accessToken: AccessToken, iTwinId: string): Promise<RealityData[]> {
-
-    const realityDatas: RealityData[] = await this.getRealityDatas(accessToken, iTwinId);
-    return realityDatas;
-  }
-
-  /** Query for reality data associated with an iTwin.
-   * @param criteria Criteria by which to query.
-   * @returns Properties of reality data associated with the context, filtered according to the criteria.
-   * @public
-   */
-  public async queryRealityData(accessToken: AccessToken, criteria: RealityDataQueryCriteria): Promise<RealityData[]> {
-    const iTwinId = criteria.iTwinId;
-    let availableRealityData: RealityData[] = [];
-
-    if (!accessToken)
-      return availableRealityData;
-
-    const client = new RealityDataAccessClient();
-
-    availableRealityData = await client.getRealityDataInITwin(accessToken, iTwinId);
-
-    // TODO implement the following when APIM supports querying
-    // let realityData: RealityData[];
-    // if (criteria.range) {
-    //   const iModelRange = criteria.range.getLongitudeLatitudeBoundingBox();
-    //   realityData = await client.getRealityDataInITwinOverlapping(accessToken, iTwinId, Angle.radiansToDegrees(iModelRange.low.x),
-    //     Angle.radiansToDegrees(iModelRange.high.x),
-    //     Angle.radiansToDegrees(iModelRange.low.y),
-    //     Angle.radiansToDegrees(iModelRange.high.y));
-    // } else {
-    //   realityData = await client.getRealityDataInITwin(accessToken, iTwinId);
-    // }
-
-    return availableRealityData;
   }
 }

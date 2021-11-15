@@ -9,10 +9,12 @@ import * as chai from "chai";
 import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 // import { ImsAuthorizationClient } from "@bentley/itwin-client";
 // import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
-import {/* DefaultSupportedTypes, */ RealityDataAccessClient, RealityDataQueryCriteria } from "../../RealityDataClient";
+import { RealityDataAccessClient } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 // import { DefaultSupportedTypes } from "../../realityDataAccessProps";
 import { ITwinRealityData } from "../../RealityData";
+// import { CartographicRange } from "@itwin/core-common";
+// import { Range3d, Transform } from "@itwin/core-geometry";
 
 chai.config.showDiff = true;
 
@@ -86,7 +88,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
-    const realityData = await realityDataAccessClient.getRealityDataInITwin(accessToken, iTwinId) as ITwinRealityData[];
+    const realityData = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, undefined) as ITwinRealityData[];
 
     chai.assert(realityData);
 
@@ -102,12 +104,13 @@ describe("RealityServicesClient Normal (#integration)", () => {
   // TODO modify to enable spatial query on extent when available in APIM
   it("should (eventually) be able to retrieve reality data in a given extent, associated to an iTwin", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
-    const realityDataQueryCriteria: RealityDataQueryCriteria = {
-      iTwinId,
-      // TODO Add range when available
-    };
 
-    const realityData = await realityDataAccessClient.queryRealityData(accessToken, realityDataQueryCriteria) as ITwinRealityData[];
+    // const realityDataQueryCriteria: RealityDataQueryCriteria = {
+    //   // TODO Add range when available
+    //   range: new CartographicRange(new Range3d(), Transform.createZero()),
+    // };
+
+    const realityData = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, undefined) as ITwinRealityData[];
     chai.assert(realityData);
 
     realityData.forEach((value) => {
