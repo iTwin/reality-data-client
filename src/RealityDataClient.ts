@@ -17,15 +17,9 @@ import { ITwinRealityData } from "./RealityData";
 // TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
 // import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
 
-/** Criteria used to query for reality data associated with an iTwin context.
- * @see getRealityDatas
- */
 export interface RealityDataQueryCriteria {
   /** If supplied, only reality data overlapping this range will be included. */
   range?: CartographicRange;
-  /** If true, return all properties for every RealityData found in query.
-   * If false or undefined, return a minimal representation containing id, displayName and type, along with a url to get full realityData details. */
-  getFullRepresentation?: boolean;
 }
 
 /**
@@ -34,6 +28,7 @@ export interface RealityDataQueryCriteria {
  * Most important methods enable to obtain a specific reality data, fetch all reality data associated with an iTwin and
  * all reality data of an iTwin within a provided spatial extent.
  * This class also implements extraction of the Azure blob address.
+ * @internal
  */
 export class RealityDataAccessClient implements RealityDataAccess {
 
@@ -101,7 +96,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityData[]> {
     try {
       const url = `${this.baseUrl}?projectId=${iTwinId}`;
-      const realityDatasResponse = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true? true : false)));
+      const realityDatasResponse = await request(url, getRequestOptions(accessToken));
 
       if (realityDatasResponse.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
