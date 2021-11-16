@@ -15,7 +15,7 @@ export function getRequestOptions(accessTokenString: string, returnFullRepresent
     headers: {
       "authorization": accessTokenString,
       "content-type": "application/json",
-      "user-agent": "RealityData Client (iTwinjs) v0.1.0", // TODO figure out how to include build number
+      "user-agent": `RealityData Client (iTwinjs) v${process.env.npm_package_version}`,
       "accept": "application/vnd.bentley.v1+json",
       "prefer": returnFullRepresentation === true ? "return=representation" : "",
     },
