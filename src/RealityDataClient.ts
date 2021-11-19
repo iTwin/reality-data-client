@@ -134,7 +134,6 @@ export class RealityDataAccessClient implements RealityDataAccess {
         }
 
       }
-      console.log(url);
       // execute query
       const response = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true ? true : false)));
 
