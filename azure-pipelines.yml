@@ -80,10 +80,13 @@ stages:
             fi
           }
           updateClient=$(checkVer $realityDataClientVersion $realityDataClientName)
-         
-          echo "package publishing conditions are met."
-          shouldPublish=true
-          
+          if [ "$updateClient" = "true" ]; then
+            echo "package publishing conditions are met."
+            shouldPublish=true
+          else
+            echo "package publishing conditions not met."
+            shouldPublish=false
+          fi
           echo "##vso[task.setvariable variable=shouldPublish;isOutput=true]$shouldPublish"
           echo "##vso[task.setvariable variable=realityDataClientVersion;isOutput=true]$realityDataClientVersion"
           echo "##vso[task.setvariable variable=realityDataClientName;isOutput=true]$realityDataClientName"
