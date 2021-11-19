@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /*---------------------------------------------------------------------------------------------
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
@@ -134,7 +133,6 @@ export class RealityDataAccessClient implements RealityDataAccess {
         }
 
       }
-      console.log(url);
       // execute query
       const response = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true ? true : false)));
 
