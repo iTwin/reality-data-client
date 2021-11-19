@@ -14,6 +14,7 @@ import { request } from "@bentley/itwin-client";
 import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
 import { getRequestOptions } from "./RequestOptions";
 import { ITwinRealityData } from "./RealityData";
+import { Angle } from "@itwin/core-geometry";
 // TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
 // import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
 
@@ -22,10 +23,20 @@ import { ITwinRealityData } from "./RealityData";
  */
 export interface RealityDataQueryCriteria {
   /** If supplied, only reality data overlapping this range will be included. */
-  range?: CartographicRange;
+  extent?: CartographicRange;
   /** If true, return all properties for every RealityData found in query.
    * If false or undefined, return a minimal representation containing id, displayName and type, along with a url to get full realityData details. */
   getFullRepresentation?: boolean;
+  /** If supplied, queries a maximum number of first results Found. Max 500. If not supplied, the query should return the first 100 RealityData found.
+  */
+  top?: number;
+
+  continuationToken?: string;
+}
+
+export interface RealityDataResponse {
+  realityDatas: RealityData[];
+  continuationToken?: string;
 }
 
 /**
@@ -98,36 +109,60 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param criteria Criteria by which to query.
   * @returns an array of RealityData that are associated to the iTwin.
   */
-  public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityData[]> {
+  public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
     try {
-      const url = `${this.baseUrl}?projectId=${iTwinId}`;
-      const realityDatasResponse = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true ? true : false)));
+      let url = `${this.baseUrl}?projectId=${iTwinId}`;
 
-      if (realityDatasResponse.status !== 200)
+      // {api-url}/realitydata/?projectId[&continuationToken][&$top][&extent]
+
+      if (criteria) {
+        if (criteria.continuationToken) {
+          url += `&continuationToken=${criteria.continuationToken}`;
+        }
+
+        if (criteria.top) {
+          const top = criteria.top;
+          if (top > 500)
+            throw new Error(`Cannot fetch more than 500 results.`);
+          url += `&$top=${top}`;
+        }
+
+        if (criteria.extent) {
+          const iModelRange = criteria.extent.getLongitudeLatitudeBoundingBox();
+          const extent = `${Angle.radiansToDegrees(iModelRange.low.x)},${Angle.radiansToDegrees(iModelRange.high.x)},${Angle.radiansToDegrees(iModelRange.low.y)},${Angle.radiansToDegrees(iModelRange.high.y)}`;
+          url += `&extent=${extent}`;
+        }
+
+      }
+      console.log(url);
+      // execute query
+      const response = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true ? true : false)));
+
+      if (response.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
 
-      const realityDatas: ITwinRealityData[] = [];
-      const realityDatasResponseBody = realityDatasResponse.body;
+      const realityDatasResponseBody = response.body;
+
+      const realityDataResponse: RealityDataResponse = {
+        realityDatas: [],
+        continuationToken: this.extractContinuationToken(response.body._links?.next?.href),
+      };
 
       realityDatasResponseBody.realityData.forEach((realityData: any) => {
-        realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
+        realityDataResponse.realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
       });
 
-      // TODO implement the following when APIM supports querying
-      // let realityData: RealityData[];
-      if (criteria) {
-        //   const iModelRange = criteria.range.getLongitudeLatitudeBoundingBox();
-        //   realityData = await client.getRealityDataInITwinOverlapping(accessToken, iTwinId, Angle.radiansToDegrees(iModelRange.low.x),
-        //     Angle.radiansToDegrees(iModelRange.high.x),
-        //     Angle.radiansToDegrees(iModelRange.low.y),
-        //     Angle.radiansToDegrees(iModelRange.high.y));
-        // } else {
-        //   realityData = await client.getRealityDataInITwin(accessToken, iTwinId);
-      }
-
-      return realityDatas;
+      return realityDataResponse;
     } catch (errorResponse: any) {
-      throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
+      throw Error(`API request error: ${errorResponse}`);
     }
+  }
+
+  private extractContinuationToken(url: string | undefined): string | undefined {
+    if (url) {
+      const continuationToken = url.split("&continuationToken=");
+      return continuationToken[continuationToken.length - 1];
+    }
+    return undefined;
   }
 }
