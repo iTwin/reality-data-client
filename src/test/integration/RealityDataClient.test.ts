@@ -12,9 +12,9 @@ import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 import { RealityDataAccessClient, RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 // import { DefaultSupportedTypes } from "../../realityDataAccessProps";
-import { ITwinRealityData } from "../../RealityData";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 import { CartographicRange } from "@itwin/core-common";
+import { RealityData } from "../../realityDataAccessProps";
 
 chai.config.showDiff = true;
 
@@ -68,7 +68,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient();
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
       await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
