@@ -10,7 +10,7 @@
 import { AccessToken } from "@itwin/core-bentley";
 import { CartographicRange } from "@itwin/core-common";
 import { request } from "@bentley/itwin-client";
-import { RealityData, RealityDataAccess } from "./realityDataAccessProps";
+import { RealityDataAccess } from "./realityDataAccessProps";
 import { getRequestOptions } from "./RequestOptions";
 import { ITwinRealityData } from "./RealityData";
 import { Angle } from "@itwin/core-geometry";
@@ -34,7 +34,7 @@ export interface RealityDataQueryCriteria {
 }
 
 export interface RealityDataResponse {
-  realityDatas: RealityData[];
+  realityDatas: ITwinRealityData[];
   continuationToken?: string;
 }
 
@@ -84,7 +84,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param realityDataId realityDataInstance id, called tilesId when returned from tile generator job
    * @returns The requested reality data.
    */
-  public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<RealityData> {
+  public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
 
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 

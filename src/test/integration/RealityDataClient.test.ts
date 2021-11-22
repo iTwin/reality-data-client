@@ -12,9 +12,9 @@ import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
 import { RealityDataAccessClient, RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 // import { DefaultSupportedTypes } from "../../realityDataAccessProps";
-import { ITwinRealityData } from "../../RealityData";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 import { CartographicRange } from "@itwin/core-common";
+import { RealityData } from "../../realityDataAccessProps";
 
 chai.config.showDiff = true;
 
@@ -68,7 +68,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient();
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
       await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
@@ -89,7 +89,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, undefined);
-    const realityDatas = realityDataResponse.realityDatas as ITwinRealityData[];
+    const realityDatas = realityDataResponse.realityDatas;
     chai.assert(realityDatas);
 
     realityDatas.forEach((value) => {
@@ -112,7 +112,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     };
 
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
-    const realityDatas = realityDataResponse.realityDatas as ITwinRealityData[];
+    const realityDatas = realityDataResponse.realityDatas;
     chai.assert(realityDatas);
     chai.assert(realityDatas.length === 100);
     realityDatas.forEach((value) => {
@@ -133,7 +133,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
 
-    const realityDatas = realityDataResponse.realityDatas as ITwinRealityData[];
+    const realityDatas = realityDataResponse.realityDatas;
     chai.assert(realityDatas);
 
     chai.assert(realityDatas.length === 10);
@@ -160,7 +160,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
 
-    const realityDatas = realityDataResponse.realityDatas as ITwinRealityData[];
+    const realityDatas = realityDataResponse.realityDatas;
     chai.assert(realityDatas);
 
     chai.assert(realityDatas.length === 10);
@@ -180,7 +180,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     const realityDataResponseContinuation = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteriaContinuationToken);
 
-    const realityDatasContinued = realityDataResponseContinuation.realityDatas as ITwinRealityData[];
+    const realityDatasContinued = realityDataResponseContinuation.realityDatas;
     chai.assert(realityDatasContinued);
 
     chai.assert(realityDatasContinued.length === 10);
