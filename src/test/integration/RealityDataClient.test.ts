@@ -14,7 +14,11 @@ import { TestConfig } from "../TestConfig";
 // import { DefaultSupportedTypes } from "../../realityDataAccessProps";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 import { CartographicRange } from "@itwin/core-common";
-import { RealityData } from "../../realityDataAccessProps";
+import { RealityData, RealityDataAccess } from "../../realityDataAccessProps";
+
+async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 chai.config.showDiff = true;
 
@@ -68,6 +72,19 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient();
+      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      chai.assert(realityData);
+      chai.assert(realityData.id === tilesId);
+      await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
+
+    } catch (errorResponse: any) {
+      throw Error(`Test error: ${errorResponse}`);
+    }
+  });
+
+  it("should return a RealityData from a given ID and respect RealityDataAccessProps interfaces", async () => {
+    try {
+      const realityDataAccessClient: RealityDataAccess  = new RealityDataAccessClient();
       const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
@@ -84,6 +101,11 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const url: URL = await realityData.getBlobUrl(accessToken, "test");
     chai.assert(url);
     chai.assert(url.toString().includes("test"));
+
+    // cache test, wait 2 seconds and make the same call again, url should be the same.
+    await delay(2000);
+    const url2: URL = await realityData.getBlobUrl(accessToken, "test");
+    chai.assert(url.href === url2.href);
   });
 
   it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
@@ -229,28 +251,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   });
   /*
-          it("should be able to retrieve app data json blob url", async () => {
-            const realityData: RealityData = await realityDataServiceClient.getRealityData(accessToken, iTwinId, tilesId);
-
-            const url: string = await realityData.getRootDocumentJson(accessToken);
-
-            chai.assert(url);
-          });
-
-          it("should be able to retrieve the azure blob url (write access)", async function () {
-            // Skip this test if the issuing authority is not imsoidc.
-            // The iTwin Platform currently does not support the reality-data:write scope.
-            const imsUrl = await imsClient.getUrl();
-            if (-1 === imsUrl.indexOf("imsoidc"))
-              this.skip();
-
-            const realityData: RealityData = await realityDataServiceClient.getRealityData(accessToken, iTwinId, tilesId);
-
-            const url: URL = await realityData.getBlobUrl(accessToken, true);
-
-            chai.assert(url);
-          });
-
           it("should be able to get model data json", async () => {
             const realityData: RealityData = await realityDataServiceClient.getRealityData(accessToken, iTwinId, tilesId);
 
