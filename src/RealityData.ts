@@ -34,7 +34,7 @@ class ContainerCache {
   private _containerRead?: ContainerCacheValue;
   private _containerWrite?: ContainerCacheValue;
 
-  public getCache(access: string) {
+  public getCache(access: string): ContainerCacheValue | undefined {
     if(access==="Read")
       return this._containerRead;
     else
@@ -165,7 +165,7 @@ export class ITwinRealityData implements RealityData {
         const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`, requestOptions);
 
         if (!response.body.container) {
-          new Error("API returned an unexpected response.");
+          throw new Error("API returned an unexpected response.");
         }
 
         // update cache
