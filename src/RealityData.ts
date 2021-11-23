@@ -29,9 +29,24 @@ export interface Acquisition {
  * Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path.
  * Cache contains one value for the read permission url, and one of the write permission.
  * */
-interface ContainerCache {
-  containerRead?: ContainerCacheValue;
-  containerWrite?: ContainerCacheValue;
+class ContainerCache {
+
+  private _containerRead?: ContainerCacheValue;
+  private _containerWrite?: ContainerCacheValue;
+
+  public getCache(access: string) {
+    if(access==="Read")
+      return this._containerRead;
+    else
+      return this._containerWrite;
+  }
+
+  public setCache(containerCacheValue: ContainerCacheValue, access: string) {
+    if(access==="Read")
+      this._containerRead = containerCacheValue;
+    else
+      this._containerWrite = containerCacheValue;
+  }
 }
 
 interface ContainerCacheValue {
@@ -84,7 +99,7 @@ export class ITwinRealityData implements RealityData {
   public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
     this.client = client!;
-    this._containerCache = {};
+    this._containerCache = new ContainerCache();
 
     if (realityData) {
       // fill in properties
@@ -137,16 +152,17 @@ export class ITwinRealityData implements RealityData {
     if (!this.client)
       this.client = new RealityDataAccessClient();
 
-    const requestOptions = getRequestOptions(accessToken);
+    const permission = (writeAccess === true ? "Write" : "Read");
+
     try {
 
-      const containerCache = (writeAccess === true) ? this._containerCache.containerWrite : this._containerCache.containerRead;
+      const containerCache = this._containerCache.getCache(permission);
       const blobUrlRequiresRefresh = !containerCache?.timeStamp || (Date.now() - containerCache?.timeStamp.getTime()) > 3000000; // 3 million milliseconds or 50 minutes
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const permissions = (writeAccess === true ? "Write" : "Read");
-        const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+        const requestOptions = getRequestOptions(accessToken);
+        const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`, requestOptions);
 
         if (!response.body.container) {
           new Error("API returned an unexpected response.");
@@ -157,15 +173,10 @@ export class ITwinRealityData implements RealityData {
           url: new URL(response.body.container._links.containerUrl.href),
           timeStamp : new Date(Date.now()),
         };
-        if(writeAccess)
-          this._containerCache.containerWrite = newContainerCacheValue;
-        else
-          this._containerCache.containerRead = newContainerCacheValue;
+
+        this._containerCache.setCache(newContainerCacheValue,permission);
       }
-      if(writeAccess)
-        return this._containerCache.containerWrite!.url;
-      else
-        return this._containerCache.containerRead!.url;
+      return this._containerCache.getCache(permission)!.url;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
