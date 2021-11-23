@@ -25,6 +25,20 @@ export interface Acquisition {
   acquirer?: string;
 }
 
+/**
+ * Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path.
+ * Cache contains one value for the read permission url, and one of the write permission.
+ * */
+interface ContainerCache {
+  containerRead?: ContainerCacheValue;
+  containerWrite?: ContainerCacheValue;
+}
+
+interface ContainerCacheValue {
+  url: URL;
+  timeStamp: Date;
+}
+
 /** RealityData
  * This class implements a Reality Data stored in ProjectWise Context Share (Reality Data Service)
  * Data is accessed directly through methods of the reality data instance.
@@ -61,12 +75,16 @@ export class ITwinRealityData implements RealityData {
   // The GUID of the iTwin used when using the client.
   public iTwinId: GuidString;
 
+  // Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path.
+  private _containerCache: ContainerCache;
+
   /**
-     * Creates an instance of RealityData.
-     */
+   * Creates an instance of RealityData.
+   */
   public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
     this.client = client!;
+    this._containerCache = {};
 
     if (realityData) {
       // fill in properties
@@ -119,16 +137,35 @@ export class ITwinRealityData implements RealityData {
     if (!this.client)
       this.client = new RealityDataAccessClient();
 
-    const permissions = (writeAccess === true ? "Write" : "Read");
     const requestOptions = getRequestOptions(accessToken);
     try {
 
-      const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+      const containerCache = (writeAccess === true) ? this._containerCache.containerWrite : this._containerCache.containerRead;
+      const blobUrlRequiresRefresh = !containerCache?.timeStamp || (Date.now() - containerCache?.timeStamp.getTime()) > 3000000; // 3 million milliseconds or 50 minutes
 
-      if (!response.body.container) {
-        new Error("API returned an unexpected response.");
+      if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
+
+        const permissions = (writeAccess === true ? "Write" : "Read");
+        const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permissions}`, requestOptions);
+
+        if (!response.body.container) {
+          new Error("API returned an unexpected response.");
+        }
+
+        // update cache
+        const newContainerCacheValue: ContainerCacheValue = {
+          url: new URL(response.body.container._links.containerUrl.href),
+          timeStamp : new Date(Date.now()),
+        };
+        if(writeAccess)
+          this._containerCache.containerWrite = newContainerCacheValue;
+        else
+          this._containerCache.containerRead = newContainerCacheValue;
       }
-      return new URL(response.body.container._links.containerUrl.href);
+      if(writeAccess)
+        return this._containerCache.containerWrite!.url;
+      else
+        return this._containerCache.containerRead!.url;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
