@@ -36,7 +36,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   let iTwinId: GuidString;
 
-  const tilesId: string = "593eff78-b757-4c07-84b2-a8fe31c19927";
+  const tilesId: string = "f2065aea-5dcd-49e2-9077-e082dde506bc";
   // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
 
   let accessToken: AccessToken;
@@ -49,16 +49,16 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
-      const realityDataId = "73226b81-6d95-45d3-9473-20e52703aea5";
-      const projectId = "ec002f93-f0c1-4ab3-a407-351848eba233";
+      const realityDataId = "f2065aea-5dcd-49e2-9077-e082dde506bc";
+      const projectId = "614a3c70-cc9f-4de9-af87-f834002ca19e";
       const realityDataAccessClient = new RealityDataAccessClient();
 
       // test with projectId
       const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
-      let expectedUrl = `https://api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5?projectId=${projectId}`;
+      let expectedUrl = `https://api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
       const urlPrefix = process.env.IMJS_URL_PREFIX;
       if (urlPrefix) {
-        expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/73226b81-6d95-45d3-9473-20e52703aea5?projectId=${projectId}`;
+        expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
       }
       chai.assert(realityDataUrl === expectedUrl);
 
@@ -84,7 +84,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should return a RealityData from a given ID and respect RealityDataAccessProps interfaces", async () => {
     try {
-      const realityDataAccessClient: RealityDataAccess  = new RealityDataAccessClient();
+      const realityDataAccessClient: RealityDataAccess = new RealityDataAccessClient();
       const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
@@ -103,7 +103,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(url.toString().includes("test"));
 
     // cache test, wait 2 seconds and make the same call again, url should be the same.
-    await delay(2000);
+    await delay(1000);
     const fakeAccessToken = "fake"; // this ensures that we are not executing a request to APIM for a new SAS url, otherwise it would fail
     const url2: URL = await realityData.getBlobUrl(fakeAccessToken, "test");
     chai.assert(url.href === url2.href);
@@ -122,29 +122,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
       chai.assert(value.id);
     });
 
-  });
-
-  // TODO modify to enable spatial query on extent when available in APIM
-  it("should (eventually) be able to retrieve reality data in a given extent, associated to an iTwin", async () => {
-    const realityDataAccessClient = new RealityDataAccessClient();
-
-    const realityDataQueryCriteria: RealityDataQueryCriteria = {
-      //   // TODO Add range when available
-      //   range: new CartographicRange(new Range3d(), Transform.createZero()),
-      getFullRepresentation: true,
-    };
-
-    const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
-    const realityDatas = realityDataResponse.realityDatas;
-    chai.assert(realityDatas);
-    chai.assert(realityDatas.length === 100);
-    realityDatas.forEach((value) => {
-      // chai.assert(value.rootDocument ); // not every RealityData has a root document.
-      chai.assert(value.iTwinId === iTwinId);
-      chai.assert(value.type);
-      chai.assert(value.id);
-      // TODO test range when available.
-    });
   });
 
   it("should query the first 10 reality data using the $top=10 parameter", async () => {
@@ -176,9 +153,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should be able to query using continuationToken", async () => {
     const realityDataAccessClient = new RealityDataAccessClient();
 
-    // get the first 10
+    // get the first 5
     const realityDataQueryCriteria: RealityDataQueryCriteria = {
-      top: 10,
+      top: 5,
     };
 
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
@@ -186,7 +163,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityDatas = realityDataResponse.realityDatas;
     chai.assert(realityDatas);
 
-    chai.assert(realityDatas.length === 10);
+    chai.assert(realityDatas.length === 5);
     realityDatas.forEach((value) => {
       chai.assert(value.iTwinId === iTwinId);
       chai.assert(value.type);
@@ -195,9 +172,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityDataResponse.continuationToken);
 
-    // get another 10 with continuation token
+    // get another 5 with continuation token
     const realityDataQueryCriteriaContinuationToken: RealityDataQueryCriteria = {
-      top: 10,
+      top: 5,
       continuationToken: realityDataResponse.continuationToken,
     };
 
@@ -206,7 +183,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityDatasContinued = realityDataResponseContinuation.realityDatas;
     chai.assert(realityDatasContinued);
 
-    chai.assert(realityDatasContinued.length === 10);
+    chai.assert(realityDatasContinued.length === 5);
     realityDatasContinued.forEach((value) => {
       chai.assert(value.iTwinId === iTwinId);
       chai.assert(value.type);
@@ -215,7 +192,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     // test until no more continuation
     const realityDataQueryUntilTheEnd: RealityDataQueryCriteria = {
-      top: 500,
+      top: 5,
       continuationToken: realityDataResponseContinuation.continuationToken,
     };
 
@@ -246,9 +223,18 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
 
     chai.expect(realityDataResponse);
-    realityDataResponse.realityDatas.forEach((value) => {
-      chai.assert(value.id);
-    });
+
+    // currently in prod, only one result should be possible
+    /*
+      id: 'de1badb3-012f-4f18-b28a-57d3f2164ba8',
+      extent: {
+        southWest: { latitude: 40.6706, longitude: -80.3455 },
+        northEast: { latitude: 40.6716, longitude: -80.3359 }
+      }
+    */
+    // with http request : https://api.bentley.com/realitydata?projectId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
+    chai.expect(realityDataResponse.realityDatas.length === 1);
+    chai.assert(realityDataResponse.realityDatas[0].id === "de1badb3-012f-4f18-b28a-57d3f2164ba8");
 
   });
   /*

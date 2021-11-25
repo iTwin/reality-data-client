@@ -10,7 +10,7 @@ import { getAccessTokenFromBackend, TestUserCredentials, TestUsers } from "@itwi
  */
 export class TestConfig {
   /** Name of project used by most tests */
-  public static readonly projectName: string = "iModelJsIntegrationTest";
+  public static readonly projectName: string = "Integration tests for reality-data-client";
 
   /** Login the specified user and return the AuthorizationToken */
   public static async getAccessToken(user: TestUserCredentials = TestUsers.regular): Promise<AccessToken> {

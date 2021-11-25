@@ -128,7 +128,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
         if (criteria.extent) {
           const iModelRange = criteria.extent.getLongitudeLatitudeBoundingBox();
-          const extent = `${Angle.radiansToDegrees(iModelRange.low.x)},${Angle.radiansToDegrees(iModelRange.high.x)},${Angle.radiansToDegrees(iModelRange.low.y)},${Angle.radiansToDegrees(iModelRange.high.y)}`;
+          const extent = `${Angle.radiansToDegrees(iModelRange.low.x)},${Angle.radiansToDegrees(iModelRange.low.y)},${Angle.radiansToDegrees(iModelRange.high.x)},${Angle.radiansToDegrees(iModelRange.high.y)}`;
           url += `&extent=${extent}`;
         }
 
