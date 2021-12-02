@@ -15,10 +15,13 @@ import { TestConfig } from "../TestConfig";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 import { CartographicRange } from "@itwin/core-common";
 import { RealityData, RealityDataAccess } from "../../realityDataAccessProps";
-import { Acquisition } from "../../RealityData";
 
 async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isInstanceOfDate(object: any): object is Date {
+  return object;
 }
 
 chai.config.showDiff = true;
@@ -252,7 +255,22 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataResponse.rootDocument === "samples/sample.3mx");
 
     chai.assert(realityDataResponse.acquisition != null);
-    chai.assert(typeof realityDataResponse.acquisition?.startDateTime === typeof Date);
+    chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.startDateTime));
+    chai.assert(realityDataResponse.acquisition?.startDateTime.getTime() === new Date("2021-05-12T20:03:12Z").getTime());
+    chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.endDateTime));
+    chai.assert(realityDataResponse.acquisition?.endDateTime!.getTime() === new Date("2021-05-15T05:07:18Z").getTime());
+    chai.assert(realityDataResponse.acquisition?.acquirer === "Data Acquisition Inc.");
+    chai.assert(realityDataResponse.extent != null);
+    chai.assert(realityDataResponse.extent?.southWest.latitude === 50.1171);
+    chai.assert(realityDataResponse.extent?.southWest.longitude === -122.9543);
+    chai.assert(realityDataResponse.extent?.northEast.latitude === 50.1172);
+    chai.assert(realityDataResponse.extent?.northEast.longitude === -122.9543);
+    chai.assert(realityDataResponse.authoring === false);
+    chai.assert(realityDataResponse.dataCenterLocation === "East US");
+    chai.assert(realityDataResponse.modifiedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
+    chai.assert(realityDataResponse.lastAccessedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
+    chai.assert(realityDataResponse.createdDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
+
   });
   /*
           it("should be able to get model data json", async () => {

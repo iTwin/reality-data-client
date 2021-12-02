@@ -19,14 +19,6 @@ export interface Point {
   longitude: number;
 }
 
-// export class Acquisition {
-//   public startDateTime: Date;
-//   public endDateTime?: Date;
-//   public acquirer?: string;
-
-//   public constructor(){}
-// }
-
 export interface Acquisition {
   startDateTime: Date;
   endDateTime?: Date;
@@ -79,7 +71,7 @@ export class ITwinRealityData implements RealityData {
   public displayName?: string;
   public dataset?: string;
   public group?: string;
-  public dataLocation?: string;
+  public dataCenterLocation?: string;
   public description?: string;
   public rootDocument?: string;
   public acquisition?: Acquisition;
@@ -115,22 +107,23 @@ export class ITwinRealityData implements RealityData {
       this.displayName = realityData.displayName;
       this.dataset = realityData.dataset;
       this.group = realityData.group;
-      this.dataLocation = realityData.dataLocation;
+      this.dataCenterLocation = realityData.dataCenterLocation;
       this.description = realityData.description;
       this.rootDocument = realityData.rootDocument;
-      this.acquisition = (realityData.acquisition as Acquisition); // todo what to do here
-      // this.acquisition = new Acquisition();
-      this.acquisition.startDateTime = new Date(realityData.acquisition.startDateTime);
-      this.acquisition.endDateTime = new Date(realityData.acquisition.endDateTime);
-      this.acquisition.acquirer = realityData.acquisition.acquirer;
+      if(realityData.acquisition) {
+        this.acquisition = (realityData.acquisition as Acquisition);
+        this.acquisition.startDateTime = new Date(realityData.acquisition.startDateTime);
+        this.acquisition.endDateTime = realityData.acquisition.endDateTime ? new Date(realityData.acquisition.endDateTime) : undefined;
+        this.acquisition.acquirer = realityData.acquisition.acquirer ? realityData.acquisition.acquirer : undefined;
+      }
       this.size = realityData.size;
       this.authoring = realityData.authoring;
       this.classification = realityData.classification;
       this.type = realityData.type;
       this.extent = realityData.extent;
-      this.modifiedDateTime = realityData.modifiedDateTime;
-      this.lastAccessedDateTime = realityData.lastAccessedDateTime;
-      this.createdDateTime = realityData.createdDateTime;
+      this.modifiedDateTime = new Date(realityData.modifiedDateTime);
+      this.lastAccessedDateTime = new Date(realityData.lastAccessedDateTime);
+      this.createdDateTime = new Date(realityData.createdDateTime);
     }
 
     if (iTwinId)
