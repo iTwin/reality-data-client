@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable no-debugger */
 /*---------------------------------------------------------------------------------------------
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import chaiAsPromised from "chai-as-promised";
 import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+
 import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
-// import { ImsAuthorizationClient } from "@bentley/itwin-client";
-// import { TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
+import { CartographicRange, RealityData, RealityDataAccess } from "@itwin/core-common";
+import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
+
 import { RealityDataAccessClient, RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
-// import { DefaultSupportedTypes } from "../../realityDataAccessProps";
-import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
-import { CartographicRange } from "@itwin/core-common";
-import { RealityData, RealityDataAccess } from "../../realityDataAccessProps";
+
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable no-debugger */
 
 async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

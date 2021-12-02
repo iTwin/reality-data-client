@@ -8,14 +8,13 @@
  */
 
 import type { AccessToken } from "@itwin/core-bentley";
-import { CartographicRange } from "@itwin/core-common";
 import { request } from "@bentley/itwin-client";
-import { RealityDataAccess } from "./realityDataAccessProps";
-import { getRequestOptions } from "./RequestOptions";
-import { ITwinRealityData } from "./RealityData";
+import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
-// TODO remove local realityDataAccessProps when itwin is moved to new repo and interface  is up to date
-// import { RealityData, RealityDataAccess } from "@itwin/core-frontend/lib/cjs/RealityDataAccessProps";
+
+import { ITwinRealityData } from "./RealityData";
+import { getRequestOptions } from "./RequestOptions";
+
 
 /** Criteria used to query for reality data associated with an iTwin context.
  * @see getRealityDatas

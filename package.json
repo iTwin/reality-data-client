@@ -47,10 +47,10 @@
     "@itwin/core-common": "rc"
   },
   "devDependencies": {
-    "@itwin/core-bentley": "rc",
-    "@itwin/core-common": "rc",
     "@itwin/build-tools": "rc",
     "@itwin/certa": "rc",
+    "@itwin/core-bentley": "rc",
+    "@itwin/core-common": "rc",
     "@itwin/core-geometry": "rc",
     "@itwin/eslint-plugin": "rc",
     "@itwin/oidc-signin-tool": "3.0.0-dev.110",

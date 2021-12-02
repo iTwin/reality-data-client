@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { RequestOptions } from "@bentley/itwin-client";
+import type { RequestOptions } from "@bentley/itwin-client";
 
 /**
  * Build the request methods, headers, and other options
