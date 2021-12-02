@@ -15,7 +15,6 @@ import { Angle } from "@itwin/core-geometry";
 import { ITwinRealityData } from "./RealityData";
 import { getRequestOptions } from "./RequestOptions";
 
-
 /** Criteria used to query for reality data associated with an iTwin context.
  * @see getRealityDatas
  */
