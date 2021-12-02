@@ -7,7 +7,7 @@
  * @module RealityDataClient
  */
 
-import { AccessToken } from "@itwin/core-bentley";
+import type { AccessToken } from "@itwin/core-bentley";
 import { CartographicRange } from "@itwin/core-common";
 import { request } from "@bentley/itwin-client";
 import { RealityDataAccess } from "./realityDataAccessProps";

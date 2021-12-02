@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 import { RealityData } from "./realityDataAccessProps";
-import { AccessToken, GuidString } from "@itwin/core-bentley";
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
 import { RealityDataAccessClient } from "./RealityDataClient";
 import { request } from "@bentley/itwin-client";
 import { getRequestOptions } from "./RequestOptions";

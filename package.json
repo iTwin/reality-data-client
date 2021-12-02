@@ -41,11 +41,9 @@
     "url": "http://www.bentley.com"
   },
   "dependencies": {
-    "@bentley/itwin-client": "rc",
-    "@itwin/projects-client": "^0.2.0"
+    "@bentley/itwin-client": "rc"
   },
   "peerDependencies": {
-    "@itwin/core-bentley": "rc",
     "@itwin/core-common": "rc"
   },
   "devDependencies": {
@@ -56,6 +54,7 @@
     "@itwin/core-geometry": "rc",
     "@itwin/eslint-plugin": "rc",
     "@itwin/oidc-signin-tool": "3.0.0-dev.110",
+    "@itwin/projects-client": "^0.2.0",
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
