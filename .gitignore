@@ -3,3 +3,4 @@ lib/
 package-lock.json
 .env*
 src/index.ts
+.vscode/

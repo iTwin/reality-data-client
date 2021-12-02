@@ -19,6 +19,14 @@ export interface Point {
   longitude: number;
 }
 
+// export class Acquisition {
+//   public startDateTime: Date;
+//   public endDateTime?: Date;
+//   public acquirer?: string;
+
+//   public constructor(){}
+// }
+
 export interface Acquisition {
   startDateTime: Date;
   endDateTime?: Date;
@@ -110,7 +118,11 @@ export class ITwinRealityData implements RealityData {
       this.dataLocation = realityData.dataLocation;
       this.description = realityData.description;
       this.rootDocument = realityData.rootDocument;
-      this.acquisition = realityData.acquisition;
+      this.acquisition = (realityData.acquisition as Acquisition); // todo what to do here
+      // this.acquisition = new Acquisition();
+      this.acquisition.startDateTime = new Date(realityData.acquisition.startDateTime);
+      this.acquisition.endDateTime = new Date(realityData.acquisition.endDateTime);
+      this.acquisition.acquirer = realityData.acquisition.acquirer;
       this.size = realityData.size;
       this.authoring = realityData.authoring;
       this.classification = realityData.classification;

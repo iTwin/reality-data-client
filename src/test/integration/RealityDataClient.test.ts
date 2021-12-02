@@ -15,6 +15,7 @@ import { TestConfig } from "../TestConfig";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 import { CartographicRange } from "@itwin/core-common";
 import { RealityData, RealityDataAccess } from "../../realityDataAccessProps";
+import { Acquisition } from "../../RealityData";
 
 async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -236,6 +237,22 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.expect(realityDataResponse.realityDatas.length === 1);
     chai.assert(realityDataResponse.realityDatas[0].id === "de1badb3-012f-4f18-b28a-57d3f2164ba8");
 
+  });
+
+  it("should get a realityData and should create an ITwinRealityData instance with proper types", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient();
+    const realityDataResponse = await realityDataAccessClient.getRealityData(accessToken, iTwinId,"ac78eae2-496a-4d26-a87d-1dab0b93ab00");
+
+    chai.assert(realityDataResponse.id === "ac78eae2-496a-4d26-a87d-1dab0b93ab00");
+    chai.assert(realityDataResponse.displayName === "property test realityData");
+    chai.assert(realityDataResponse.dataset === "Dataset");
+    chai.assert(realityDataResponse.group === "GroupId");
+    chai.assert(realityDataResponse.description === "Description of the reality data");
+
+    chai.assert(realityDataResponse.rootDocument === "samples/sample.3mx");
+
+    chai.assert(realityDataResponse.acquisition != null);
+    chai.assert(typeof realityDataResponse.acquisition?.startDateTime === typeof Date);
   });
   /*
           it("should be able to get model data json", async () => {
