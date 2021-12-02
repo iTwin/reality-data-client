@@ -19,6 +19,10 @@ async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isInstanceOfDate(object: any): object is Date {
+  return object;
+}
+
 chai.config.showDiff = true;
 
 chai.should();
@@ -234,6 +238,37 @@ describe("RealityServicesClient Normal (#integration)", () => {
     // with http request : https://api.bentley.com/realitydata?projectId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
     chai.expect(realityDataResponse.realityDatas.length === 1);
     chai.assert(realityDataResponse.realityDatas[0].id === "de1badb3-012f-4f18-b28a-57d3f2164ba8");
+
+  });
+
+  it("should get a realityData and should create an ITwinRealityData instance with proper types", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient();
+    const realityDataResponse = await realityDataAccessClient.getRealityData(accessToken, iTwinId,"ac78eae2-496a-4d26-a87d-1dab0b93ab00");
+
+    chai.assert(realityDataResponse.id === "ac78eae2-496a-4d26-a87d-1dab0b93ab00");
+    chai.assert(realityDataResponse.displayName === "property test realityData");
+    chai.assert(realityDataResponse.dataset === "Dataset");
+    chai.assert(realityDataResponse.group === "GroupId");
+    chai.assert(realityDataResponse.description === "Description of the reality data");
+
+    chai.assert(realityDataResponse.rootDocument === "samples/sample.3mx");
+
+    chai.assert(realityDataResponse.acquisition != null);
+    chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.startDateTime));
+    chai.assert(realityDataResponse.acquisition?.startDateTime.getTime() === new Date("2021-05-12T20:03:12Z").getTime());
+    chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.endDateTime));
+    chai.assert(realityDataResponse.acquisition?.endDateTime!.getTime() === new Date("2021-05-15T05:07:18Z").getTime());
+    chai.assert(realityDataResponse.acquisition?.acquirer === "Data Acquisition Inc.");
+    chai.assert(realityDataResponse.extent != null);
+    chai.assert(realityDataResponse.extent?.southWest.latitude === 50.1171);
+    chai.assert(realityDataResponse.extent?.southWest.longitude === -122.9543);
+    chai.assert(realityDataResponse.extent?.northEast.latitude === 50.1172);
+    chai.assert(realityDataResponse.extent?.northEast.longitude === -122.9543);
+    chai.assert(realityDataResponse.authoring === false);
+    chai.assert(realityDataResponse.dataCenterLocation === "East US");
+    chai.assert(realityDataResponse.modifiedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
+    chai.assert(realityDataResponse.lastAccessedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
+    chai.assert(realityDataResponse.createdDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
 
   });
   /*
