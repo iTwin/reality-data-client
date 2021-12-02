@@ -9,4 +9,3 @@ The __@iTwin/reality-data-client__ package contains client wrappers for sending 
 ## Documentation
 
 See the [iTwin.js](https://www.itwinjs.org) documentation for more information.
-
