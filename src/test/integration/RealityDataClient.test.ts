@@ -35,7 +35,7 @@ Logger.setLevel(LOG_CATEGORY, LogLevel.Info);
 
 const realityDataClientConfig: RealityDataClientOptions = {
   version: ApiVersion.v1,
-  baseUrl: "https://api.bentley.com/realityData",
+  baseUrl: "https://api.bentley.com/realitydata",
 };
 
 describe("RealityServicesClient Normal (#integration)", () => {
