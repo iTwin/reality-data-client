@@ -6,8 +6,9 @@
 import type { RealityData } from "@itwin/core-common";
 import type { AccessToken, GuidString } from "@itwin/core-bentley";
 import { RealityDataAccessClient } from "./RealityDataClient";
-import { request } from "@bentley/itwin-client";
+
 import { getRequestOptions } from "./RequestOptions";
+import axios from "axios";
 
 export interface Extent {
   southWest: Point;
@@ -35,14 +36,14 @@ class ContainerCache {
   private _containerWrite?: ContainerCacheValue;
 
   public getCache(access: string): ContainerCacheValue | undefined {
-    if(access==="Read")
+    if (access === "Read")
       return this._containerRead;
     else
       return this._containerWrite;
   }
 
   public setCache(containerCacheValue: ContainerCacheValue, access: string) {
-    if(access==="Read")
+    if (access === "Read")
       this._containerRead = containerCacheValue;
     else
       this._containerWrite = containerCacheValue;
@@ -110,7 +111,7 @@ export class ITwinRealityData implements RealityData {
       this.dataCenterLocation = realityData.dataCenterLocation;
       this.description = realityData.description;
       this.rootDocument = realityData.rootDocument;
-      if(realityData.acquisition) {
+      if (realityData.acquisition) {
         this.acquisition = (realityData.acquisition as Acquisition);
         this.acquisition.startDateTime = new Date(realityData.acquisition.startDateTime);
         this.acquisition.endDateTime = realityData.acquisition.endDateTime ? new Date(realityData.acquisition.endDateTime) : undefined;
@@ -165,20 +166,21 @@ export class ITwinRealityData implements RealityData {
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const requestOptions = getRequestOptions(accessToken, this.client.apiVersion);
-        const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`, requestOptions);
+        const url = `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`;
+        const requestOptions = getRequestOptions(accessToken, url, this.client.apiVersion);
+        const response = await axios.get(url, requestOptions);
 
-        if (!response.body.container) {
+        if (!response.data.container) {
           throw new Error("API returned an unexpected response.");
         }
 
         // update cache
         const newContainerCacheValue: ContainerCacheValue = {
-          url: new URL(response.body.container._links.containerUrl.href),
-          timeStamp : new Date(Date.now()),
+          url: new URL(response.data.container._links.containerUrl.href),
+          timeStamp: new Date(Date.now()),
         };
 
-        this._containerCache.setCache(newContainerCacheValue,permission);
+        this._containerCache.setCache(newContainerCacheValue, permission);
       }
       return this._containerCache.getCache(permission)!.url;
     } catch (errorResponse: any) {
