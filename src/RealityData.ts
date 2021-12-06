@@ -152,10 +152,9 @@ export class ITwinRealityData implements RealityData {
      * @returns app URL object for blob url
      */
   private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
-    // Normally the client is set when the reality data is extracted for the client but it could be undefined
-    // if the reality data instance is created manually.
+
     if (!this.client)
-      this.client = new RealityDataAccessClient();
+      throw Error("RealityDataAccessClient is not set.");
 
     const permission = (writeAccess === true ? "Write" : "Read");
 
@@ -166,7 +165,7 @@ export class ITwinRealityData implements RealityData {
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const requestOptions = getRequestOptions(accessToken);
+        const requestOptions = getRequestOptions(accessToken, this.client.apiVersion);
         const response = await request(`${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`, requestOptions);
 
         if (!response.body.container) {

@@ -4,20 +4,28 @@
 *--------------------------------------------------------------------------------------------*/
 
 import type { RequestOptions } from "@bentley/itwin-client";
+import { ApiVersion } from "./RealityDataClient";
 
 /**
  * Build the request methods, headers, and other options
  * @param accessTokenString The client access token string
  */
-export function getRequestOptions(accessTokenString: string, returnFullRepresentation: boolean = false): RequestOptions {
+export function getRequestOptions(accessTokenString: string, apiVersion: ApiVersion, returnFullRepresentation: boolean = false): RequestOptions {
   return{
     method: "GET",
     headers: {
       "authorization": accessTokenString,
       "content-type": "application/json",
       "user-agent": `RealityData Client (iTwinjs) v${process.env.npm_package_version}`,
-      "accept": "application/vnd.bentley.v1+json",
+      "accept": getApiVersionHeader(apiVersion),
       "prefer": returnFullRepresentation === true ? "return=representation" : "",
     },
   };
+}
+
+function getApiVersionHeader(apiVersion: ApiVersion): string {
+  switch(apiVersion) {
+    case ApiVersion.v1 :
+    default :  return "application/vnd.bentley.v1+json";
+  }
 }

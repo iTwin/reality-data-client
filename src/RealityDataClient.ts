@@ -15,6 +15,20 @@ import { Angle } from "@itwin/core-geometry";
 import { ITwinRealityData } from "./RealityData";
 import { getRequestOptions } from "./RequestOptions";
 
+/** Options for initializing Reality Data Client
+*/
+export interface RealityDataClientOptions {
+  /** API Version. v1 by default */
+  version?: ApiVersion;
+  /** API Url. Used to select environment. Defaults to "https://api.bentley.com/realitydata" */
+  baseUrl?: string;
+}
+
+/** Available Reality Data API Versions */
+export enum ApiVersion{
+  v1
+}
+
 /** Criteria used to query for reality data associated with an iTwin context.
  * @see getRealityDatas
  */
@@ -27,7 +41,7 @@ export interface RealityDataQueryCriteria {
   /** If supplied, queries a maximum number of first results Found. Max 500. If not supplied, the query should return the first 100 RealityData found.
   */
   top?: number;
-
+  /** Continuation token to get current query's next results.*/
   continuationToken?: string;
 }
 
@@ -46,16 +60,18 @@ export interface RealityDataResponse {
 export class RealityDataAccessClient implements RealityDataAccess {
 
   public readonly baseUrl: string = "https://api.bentley.com/realitydata";
+  public readonly apiVersion: ApiVersion = ApiVersion.v1;
 
   /**
    * Creates an instance of RealityDataServicesClient.
    */
-  public constructor() {
-    const urlPrefix = process.env.IMJS_URL_PREFIX;
-    if (urlPrefix) {
-      const baseUrl = new URL(this.baseUrl);
-      baseUrl.hostname = urlPrefix + baseUrl.hostname;
-      this.baseUrl = baseUrl.href;
+  public constructor(realityDataClientOptions?: RealityDataClientOptions) {
+    // runtime config
+    if(realityDataClientOptions){
+      if(realityDataClientOptions.version)
+        this.apiVersion = realityDataClientOptions.version;
+      if(realityDataClientOptions.baseUrl)
+        this.baseUrl = realityDataClientOptions.baseUrl;
     }
   }
 
@@ -87,7 +103,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 
     try {
-      const realityDataResponse = await request(url, getRequestOptions(accessToken));
+      const realityDataResponse = await request(url, getRequestOptions(accessToken, this.apiVersion));
       if (realityDataResponse.status !== 200)
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
@@ -132,7 +148,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       }
       // execute query
-      const response = await request(url, getRequestOptions(accessToken, (criteria?.getFullRepresentation === true ? true : false)));
+      const response = await request(url, getRequestOptions(accessToken, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
