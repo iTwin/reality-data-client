@@ -1,6 +1,6 @@
 {
   "name": "@itwin/reality-data-client",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Reality Data Client for the iTwin platform",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
@@ -40,11 +40,10 @@
     "name": "Bentley Systems, Inc.",
     "url": "http://www.bentley.com"
   },
-  "dependencies": {
-    "@bentley/itwin-client": "rc"
-  },
+  "dependencies": {},
   "peerDependencies": {
-    "@itwin/core-common": "rc"
+    "@itwin/core-common": "rc",
+    "axios": "^0.24.0"
   },
   "devDependencies": {
     "@itwin/build-tools": "rc",
@@ -58,6 +57,7 @@
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
+    "axios": "^0.24.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^10.0.0",

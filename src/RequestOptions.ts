@@ -2,16 +2,16 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-
-import type { RequestOptions } from "@bentley/itwin-client";
+import { AxiosRequestConfig } from "axios";
 import { ApiVersion } from "./RealityDataClient";
 
 /**
  * Build the request methods, headers, and other options
  * @param accessTokenString The client access token string
  */
-export function getRequestOptions(accessTokenString: string, apiVersion: ApiVersion, returnFullRepresentation: boolean = false): RequestOptions {
-  return{
+export function getRequestOptions(accessTokenString: string, url: string, apiVersion: ApiVersion, returnFullRepresentation: boolean = false): AxiosRequestConfig {
+  return {
+    url,
     method: "GET",
     headers: {
       "authorization": accessTokenString,
@@ -24,8 +24,8 @@ export function getRequestOptions(accessTokenString: string, apiVersion: ApiVers
 }
 
 function getApiVersionHeader(apiVersion: ApiVersion): string {
-  switch(apiVersion) {
-    case ApiVersion.v1 :
-    default :  return "application/vnd.bentley.v1+json";
+  switch (apiVersion) {
+    case ApiVersion.v1:
+    default: return "application/vnd.bentley.v1+json";
   }
 }

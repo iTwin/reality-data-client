@@ -8,9 +8,10 @@
  */
 
 import type { AccessToken } from "@itwin/core-bentley";
-import { request } from "@bentley/itwin-client";
+
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
+import axios from "axios";
 
 import { ITwinRealityData } from "./RealityData";
 import { getRequestOptions } from "./RequestOptions";
@@ -103,11 +104,11 @@ export class RealityDataAccessClient implements RealityDataAccess {
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 
     try {
-      const realityDataResponse = await request(url, getRequestOptions(accessToken, this.apiVersion));
+      const realityDataResponse = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion));
       if (realityDataResponse.status !== 200)
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
-      const realityData = new ITwinRealityData(this, realityDataResponse.body.realityData, iTwinId);
+      const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
 
       return realityData;
     } catch (errorResponse: any) {
@@ -148,16 +149,16 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       }
       // execute query
-      const response = await request(url, getRequestOptions(accessToken, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
+      const response = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
 
-      const realityDatasResponseBody = response.body;
+      const realityDatasResponseBody = response.data;
 
       const realityDataResponse: RealityDataResponse = {
         realityDatas: [],
-        continuationToken: this.extractContinuationToken(response.body._links?.next?.href),
+        continuationToken: this.extractContinuationToken(response.data._links?.next?.href),
       };
 
       realityDatasResponseBody.realityData.forEach((realityData: any) => {
