@@ -62,16 +62,15 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const realityDataAccessClient = new RealityDataAccessClient();
 
       // test with projectId
-      const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
-      let expectedUrl = `https://api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
-      const urlPrefix = process.env.IMJS_URL_PREFIX;
-      if (urlPrefix) {
-        expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
-      }
+      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
+
       chai.assert(realityDataUrl === expectedUrl);
 
       // test without projectId
-      await chai.expect(realityDataAccessClient.getRealityDataUrl(undefined, "realityDataId")).to.eventually.be.rejectedWith(Error);
+      realityDataUrl = await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId);
+      chai.assert(realityDataUrl === `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc`);
+
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
@@ -80,10 +79,15 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      let realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
-      await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
+
+      // test without projectId
+      await delay(1000);
+      realityData = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
+      chai.assert(realityData);
+      chai.assert(realityData.id === tilesId);
 
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
@@ -110,7 +114,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(url);
     chai.assert(url.toString().includes("test"));
 
-    // cache test, wait 2 seconds and make the same call again, url should be the same.
+    // cache test, wait 1 second and make the same call again, url should be the same.
     await delay(1000);
     const fakeAccessToken = "fake"; // this ensures that we are not executing a request to APIM for a new SAS url, otherwise it would fail
     const url2: URL = await realityData.getBlobUrl(fakeAccessToken, "test");
