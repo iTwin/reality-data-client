@@ -11,10 +11,10 @@ import type { AccessToken } from "@itwin/core-bentley";
 
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 import { ITwinRealityData } from "./RealityData";
-import { getRequestOptions } from "./RequestOptions";
+import { getRequestConfig } from "./RequestOptions";
 
 /** Options for initializing Reality Data Client
 */
@@ -26,7 +26,7 @@ export interface RealityDataClientOptions {
 }
 
 /** Available Reality Data API Versions */
-export enum ApiVersion{
+export enum ApiVersion {
   v1
 }
 
@@ -68,10 +68,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
    */
   public constructor(realityDataClientOptions?: RealityDataClientOptions) {
     // runtime config
-    if(realityDataClientOptions){
-      if(realityDataClientOptions.version)
+    if (realityDataClientOptions) {
+      if (realityDataClientOptions.version)
         this.apiVersion = realityDataClientOptions.version;
-      if(realityDataClientOptions.baseUrl)
+      if (realityDataClientOptions.baseUrl)
         this.baseUrl = realityDataClientOptions.baseUrl;
     }
   }
@@ -104,7 +104,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
 
     try {
-      const realityDataResponse = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion));
+      const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
       if (realityDataResponse.status !== 200)
         throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
 
@@ -149,7 +149,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       }
       // execute query
-      const response = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
+      const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
         throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
@@ -177,5 +177,70 @@ export class RealityDataAccessClient implements RealityDataAccess {
       return continuationToken[continuationToken.length - 1];
     }
     return undefined;
+  }
+
+  /**
+   * Creates a RealityData
+   * @param accessToken The client request context.
+   * @param iTwinId id of associated iTwin
+   * @param iTwinRealityDAta the realityData to create
+   */
+  public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
+    try {
+      const url = `${this.baseUrl}?projectId=${iTwinId}`;
+      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+
+      // creation payload
+
+      const realityDataToCreate = {
+        displayName: iTwinRealityData.displayName,
+        classification: iTwinRealityData.classification,
+        type: iTwinRealityData.type,
+        dataset: iTwinRealityData.dataset,
+        group: iTwinRealityData.group,
+        description: iTwinRealityData.description,
+        rootDocument: iTwinRealityData.rootDocument,
+        acquisition: iTwinRealityData.acquisition,
+        authoring: iTwinRealityData.authoring,
+        extent: iTwinRealityData.extent,
+      };
+
+      const createPayload = {
+        projectId: iTwinId,
+        realityData: realityDataToCreate,
+      };
+
+      const response = await axios.post(url, createPayload, options); // rename itwinId to projectId
+
+      iTwinRealityData = new ITwinRealityData(response.data.realityData, iTwinId);
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+
+    return iTwinRealityData;
+  }
+
+  /**
+   * Delets a RealityData
+    * @param accessToken The client request context.
+   * @param iTwinId id of associated iTwin
+   * @param iTwinRealityDAta the realityData to delete
+   * @returns true if successful, false if not
+   */
+  public async deleteRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<boolean> {
+
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
+      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+
+      response = await axios.delete(url, options); // rename itwinId to projectId
+
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+    if (response.status === 204)
+      return true;
+    else return false;
   }
 }

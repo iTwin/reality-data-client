@@ -7,7 +7,7 @@ import type { RealityData } from "@itwin/core-common";
 import type { AccessToken, GuidString } from "@itwin/core-bentley";
 import { RealityDataAccessClient } from "./RealityDataClient";
 
-import { getRequestOptions } from "./RequestOptions";
+import { getRequestConfig } from "./RequestOptions";
 import axios from "axios";
 
 export interface Extent {
@@ -167,7 +167,7 @@ export class ITwinRealityData implements RealityData {
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
         const url = `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`;
-        const requestOptions = getRequestOptions(accessToken, url, this.client.apiVersion);
+        const requestOptions = getRequestConfig(accessToken,"GET", url, this.client.apiVersion);
         const response = await axios.get(url, requestOptions);
 
         if (!response.data.container) {

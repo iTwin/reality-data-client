@@ -11,6 +11,7 @@ import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 
 import { ApiVersion, RealityDataAccessClient, RealityDataClientOptions, RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
+import { ITwinRealityData } from "../../RealityData";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-debugger */
@@ -248,7 +249,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should get a realityData and should create an ITwinRealityData instance with proper types", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
-    const realityDataResponse = await realityDataAccessClient.getRealityData(accessToken, iTwinId,"ac78eae2-496a-4d26-a87d-1dab0b93ab00");
+    const realityDataResponse = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "ac78eae2-496a-4d26-a87d-1dab0b93ab00");
 
     chai.assert(realityDataResponse.id === "ac78eae2-496a-4d26-a87d-1dab0b93ab00");
     chai.assert(realityDataResponse.displayName === "property test realityData");
@@ -275,6 +276,64 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataResponse.lastAccessedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
     chai.assert(realityDataResponse.createdDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
 
+  });
+
+  it("should be able to create a reality data (without specific identifier) and delete it", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    const realityData = new ITwinRealityData(realityDataAccessClient);
+    realityData.displayName = "iTwinjs RealityData Client create and delete test";
+    realityData.dataset = "Test Dataset for iTwinjs";
+    realityData.group = "Test group";
+    realityData.description = "Dummy description for a test reality data";
+    realityData.rootDocument = "RootDocumentFile.txt";
+    realityData.classification = "Undefined";
+    realityData.type = "Undefined";
+    realityData.acquisition = {
+      startDateTime: new Date("2019-05-10T09:46:16Z"),
+      endDateTime: new Date("2019-05-10T09:46:16Z"),
+      acquirer: "John Doe Surveying using Leico model 123A Point Cloud Scanner",
+    };
+    realityData.extent = {
+      southWest: {
+        latitude: 1.0,
+        longitude: 2.0,
+      },
+      northEast: {
+        latitude: 1.1,
+        longitude: 2.1,
+      },
+    };
+    realityData.authoring = true;
+
+    const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
+    chai.assert(realityDataAdded.id && realityDataAdded.id.length === 36);
+    chai.assert(realityDataAdded.displayName === realityData.displayName);
+    chai.assert(realityDataAdded.group === realityData.group);
+    chai.assert(realityDataAdded.dataset === realityData.dataset);
+    chai.assert(realityDataAdded.description === realityData.description);
+    chai.assert(realityDataAdded.rootDocument === realityData.rootDocument);
+    chai.assert(realityDataAdded.classification === realityData.classification);
+    chai.assert(realityDataAdded.type === realityData.type);
+
+    chai.assert(realityDataAdded.acquisition!.acquirer === realityData.acquisition.acquirer );
+    chai.assert(realityDataAdded.acquisition!.startDateTime === realityData.acquisition.startDateTime);
+    chai.assert(realityDataAdded.acquisition!.endDateTime === realityData.acquisition.endDateTime);
+
+    chai.assert(realityDataAdded.extent!.southWest.latitude === 1.0);
+    chai.assert(realityDataAdded.extent!.southWest.longitude === 2.0);
+    chai.assert(realityDataAdded.extent!.northEast.latitude === 1.1);
+    chai.assert(realityDataAdded.extent!.northEast.longitude === 2.1);
+
+    chai.assert(realityDataAdded.authoring === false);
+    chai.assert(realityDataAdded.dataCenterLocation === "East US");
+
+    chai.assert(realityDataAdded.modifiedDateTime!.getTime());
+    chai.assert(realityDataAdded.lastAccessedDateTime!.getTime());
+    chai.assert(realityDataAdded.createdDateTime!.getTime());
+    // At creation the last accessed time stamp remains null. ?
+
+    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, iTwinId, realityDataAdded.id));
   });
   /*
           it("should be able to get model data json", async () => {
@@ -305,82 +364,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
             chai.assert(modelData);
             const modelDataString = decoder.decode(new Uint8Array(modelData)).substring(0, 4);
             chai.assert(modelDataString === "b3dm");
-          });
-
-          it("should be able to create a reality data (without specific identifier) and delete it", async function () {
-            // Skip this test if the issuing authority is not imsoidc.
-            // The iTwin Platform currently does not support the reality-data:write scope.
-            const imsUrl = await imsClient.getUrl();
-            if (-1 === imsUrl.indexOf("imsoidc"))
-              this.skip();
-
-            const realityData: RealityData = new RealityData();
-            realityData.name = "Test reality data 1";
-            realityData.dataSet = "Test Dataset for iModelJS";
-            realityData.group = "Test group";
-            realityData.description = "Dummy description for a test reality data";
-            realityData.rootDocument = "RootDocumentFile.txt";
-            realityData.classification = "Undefined";
-            realityData.streamed = false;
-            realityData.type = undefined;
-            realityData.approximateFootprint = true;
-            realityData.copyright = "Bentley Systems inc. (c) 2019";
-            realityData.termsOfUse = "Free for testing purposes only";
-            realityData.metadataUrl = "";
-            realityData.resolutionInMeters = "2.0x2.1";
-            realityData.accuracyInMeters = undefined;
-            realityData.visibility = "PERMISSION";
-            realityData.listable = true;
-            realityData.version = "1.1.1.1";
-            realityData.dataAcquirer = "John Doe Surveying using Leico model 123A Point Cloud Scanner";
-            realityData.dataAcquisitionDate = "2019-05-10T09:46:16Z";
-            realityData.dataAcquisitionStartDate = "2019-05-10T09:46:16Z";
-            realityData.dataAcquisitionEndDate = "2019-05-10T09:46:16Z";
-            realityData.referenceElevation = 234.3;
-
-            const realityDataAdded1 = await realityDataServiceClient.createRealityData(accessToken, iTwinId, realityData);
-            chai.assert(realityDataAdded1.id && realityDataAdded1.id.length === 36);
-            chai.assert(realityDataAdded1.name === realityData.name);
-            chai.assert(realityDataAdded1.group === realityData.group);
-            chai.assert(realityDataAdded1.dataSet === realityData.dataSet);
-            chai.assert(realityDataAdded1.description === realityData.description);
-            chai.assert(realityDataAdded1.rootDocument === realityData.rootDocument);
-            chai.assert(realityDataAdded1.classification === realityData.classification);
-            chai.assert(realityDataAdded1.streamed === realityData.streamed);
-            chai.assert(realityDataAdded1.type === realityData.type);
-            chai.assert(realityDataAdded1.copyright === realityData.copyright);
-            chai.assert(realityDataAdded1.termsOfUse === realityData.termsOfUse);
-            chai.assert(realityDataAdded1.metadataUrl === realityData.metadataUrl);
-            chai.assert(realityDataAdded1.resolutionInMeters === realityData.resolutionInMeters);
-            chai.assert(realityDataAdded1.accuracyInMeters === null);
-            chai.assert(realityDataAdded1.visibility === realityData.visibility);
-            chai.assert(realityDataAdded1.listable === realityData.listable);
-            chai.assert(realityDataAdded1.version === realityData.version);
-            chai.assert(realityDataAdded1.dataAcquirer === realityData.dataAcquirer);
-            chai.assert(realityDataAdded1.dataAcquisitionDate === realityData.dataAcquisitionDate);
-            chai.assert(realityDataAdded1.dataAcquisitionStartDate === realityData.dataAcquisitionStartDate);
-            chai.assert(realityDataAdded1.dataAcquisitionEndDate === realityData.dataAcquisitionEndDate);
-            chai.assert(realityDataAdded1.referenceElevation === realityData.referenceElevation);
-
-            chai.assert(realityDataAdded1.ultimateId && realityDataAdded1.ultimateId.length === 36);
-            chai.assert(realityDataAdded1.creatorId && realityDataAdded1.creatorId.length === 36);
-            chai.assert(realityDataAdded1.ownerId && realityDataAdded1.ownerId.length === 36);
-            chai.assert(realityDataAdded1.ownedBy && realityDataAdded1.ownedBy.length > 0);
-            chai.assert(realityDataAdded1.dataLocationGuid && realityDataAdded1.dataLocationGuid.length === 36);
-            chai.assert(realityDataAdded1.containerName && realityDataAdded1.containerName.length === 36);
-            chai.assert(realityDataAdded1.modifiedTimestamp && Date.parse(realityDataAdded1.modifiedTimestamp) !== undefined);
-            chai.assert(realityDataAdded1.createdTimestamp && Date.parse(realityDataAdded1.createdTimestamp) !== undefined);
-            // At creation the last accessed time stamp remains null.
-            // chai.assert(realityDataAdded1.lastAccessedTimestamp && Date.parse(realityDataAdded1.lastAccessedTimestamp as string) !== undefined);
-
-            const relationships: RealityDataRelationship[] = await realityDataServiceClient.getRealityDataRelationships(accessToken, iTwinId, realityDataAdded1.id as string);
-
-            // Remove any relationship (can only be one to an iTwin at creation)
-            for (const relationship of relationships) {
-              await realityDataServiceClient.deleteRealityDataRelationship(accessToken, iTwinId, relationship.wsgId);
-            }
-
-            await realityDataServiceClient.deleteRealityData(accessToken, iTwinId, realityDataAdded1.id as string);
           });
 
           it("should be able to create a reality data (with fixed specific identifier) and delete it", async function () {
