@@ -63,16 +63,15 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const realityDataAccessClient = new RealityDataAccessClient();
 
       // test with projectId
-      const realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
-      let expectedUrl = `https://api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
-      const urlPrefix = process.env.IMJS_URL_PREFIX;
-      if (urlPrefix) {
-        expectedUrl = `https://${urlPrefix}api.bentley.com/realitydata/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
-      }
+      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
+
       chai.assert(realityDataUrl === expectedUrl);
 
       // test without projectId
-      await chai.expect(realityDataAccessClient.getRealityDataUrl(undefined, "realityDataId")).to.eventually.be.rejectedWith(Error);
+      realityDataUrl = await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId);
+      chai.assert(realityDataUrl === `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc`);
+
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
@@ -81,10 +80,15 @@ describe("RealityServicesClient Normal (#integration)", () => {
   it("should return a RealityData from a given ID", async () => {
     try {
       const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
-      const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
+      let realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
-      await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
+
+      // test without projectId
+      await delay(1000);
+      realityData = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
+      chai.assert(realityData);
+      chai.assert(realityData.id === tilesId);
 
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
@@ -97,8 +101,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
       const realityData: RealityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
-      await chai.expect(realityDataAccessClient.getRealityData(accessToken, undefined, tilesId)).to.eventually.be.rejectedWith(Error);
-
     } catch (errorResponse: any) {
       throw Error(`Test error: ${errorResponse}`);
     }
@@ -111,11 +113,21 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(url);
     chai.assert(url.toString().includes("test"));
 
-    // cache test, wait 2 seconds and make the same call again, url should be the same.
+    // cache test, wait 1 second and make the same call again, url should be the same.
     await delay(1000);
     const fakeAccessToken = "fake"; // this ensures that we are not executing a request to APIM for a new SAS url, otherwise it would fail
     const url2: URL = await realityData.getBlobUrl(fakeAccessToken, "test");
     chai.assert(url.href === url2.href);
+
+    // test without projectId
+    // b93bf5d4-7ccd-45fd-8a1d-8d579ff33541
+    await delay(1000);
+
+    const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, "b93bf5d4-7ccd-45fd-8a1d-8d579ff33541");
+    const url3: URL = await realityData2.getBlobUrl(accessToken, "test");
+    chai.assert(url3);
+    chai.assert(url3.toString().includes("test"));
+
   });
 
   it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
@@ -129,6 +141,21 @@ describe("RealityServicesClient Normal (#integration)", () => {
       chai.assert(value.iTwinId === iTwinId);
       chai.assert(value.type);
       chai.assert(value.id);
+    });
+
+  });
+
+  it("should be able to retrieve reality data properties for every available realitydata", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, undefined, undefined);
+    const realityDatas = realityDataResponse.realityDatas;
+
+    chai.assert(realityDatas);
+
+    realityDatas.forEach((value) => {
+      chai.assert(value.id);
+      chai.assert(value.type);
+      chai.assert(value.displayName);
     });
 
   });

@@ -89,7 +89,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     if (iTwinId) {
       return `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
     }
-    throw new Error("iTwinId is not set.");
+    return `${this.baseUrl}/${realityDataId}`;
   }
 
   /**
@@ -106,7 +106,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
     try {
       const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
       if (realityDataResponse.status !== 200)
-        throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`);
+        throw new Error(iTwinId? `Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`
+          :`Could not fetch reality data: ${realityDataId}` );
 
       const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
 
@@ -123,11 +124,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param criteria Criteria by which to query.
   * @returns an array of RealityData that are associated to the iTwin.
   */
-  public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
+  public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
     try {
-      let url = `${this.baseUrl}?projectId=${iTwinId}`;
-
-      // {api-url}/realitydata/?projectId[&continuationToken][&$top][&extent]
+      // {api-url}/realitydata/[?projectId][&continuationToken][&$top][&extent]
+      let url = iTwinId ? `${this.baseUrl}?projectId=${iTwinId}` : this.baseUrl;
 
       if (criteria) {
         if (criteria.continuationToken) {
@@ -152,7 +152,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
       const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
-        throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`);
+        throw new Error(iTwinId? `Could not fetch reality data with iTwinId ${iTwinId}`
+          : `Could not fetch reality data` );
 
       const realityDatasResponseBody = response.data;
 

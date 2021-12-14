@@ -166,7 +166,8 @@ export class ITwinRealityData implements RealityData {
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const url = `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`;
+        const url = this.iTwinId ?  `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`
+          : `${this.client.baseUrl}/${this.id}/container/?&permissions=${permission}`;
         const requestOptions = getRequestConfig(accessToken,"GET", url, this.client.apiVersion);
         const response = await axios.get(url, requestOptions);
 
