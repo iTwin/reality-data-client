@@ -106,7 +106,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
     try {
       const realityDataResponse = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion));
       if (realityDataResponse.status !== 200)
-        throw new Error(`Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`); // test
+        throw new Error(iTwinId? `Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`
+          :`Could not fetch reality data: ${realityDataId}` );
 
       const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
 
@@ -151,7 +152,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
       const response = await axios.get(url,getRequestOptions(accessToken, url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
-        throw new Error(`Could not fetch reality data with iTwinId ${iTwinId}`); // test
+        throw new Error(iTwinId? `Could not fetch reality data with iTwinId ${iTwinId}`
+          : `Could not fetch reality data` );
 
       const realityDatasResponseBody = response.data;
 
