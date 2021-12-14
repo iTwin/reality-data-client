@@ -123,7 +123,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param criteria Criteria by which to query.
   * @returns an array of RealityData that are associated to the iTwin.
   */
-  public async getRealityDatas(accessToken: AccessToken, iTwinId: string, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
+  public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
     try {
       // {api-url}/realitydata/[?projectId][&continuationToken][&$top][&extent]
       let url = iTwinId ? `${this.baseUrl}?projectId=${iTwinId}` : this.baseUrl;
