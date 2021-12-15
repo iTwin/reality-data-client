@@ -213,7 +213,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       const response = await axios.post(url, createPayload, options); // rename itwinId to projectId
 
-      iTwinRealityData = new ITwinRealityData(response.data.realityData, iTwinId);
+      iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
     } catch (errorResponse: any) {
       throw Error(`API request error: ${errorResponse}`);
     }

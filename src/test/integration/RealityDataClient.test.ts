@@ -331,10 +331,10 @@ describe("RealityServicesClient Normal (#integration)", () => {
         longitude: 2.1,
       },
     };
-    realityData.authoring = true;
+    realityData.authoring = false;
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
-    chai.assert(realityDataAdded.id && realityDataAdded.id.length === 36);
+    chai.assert(realityDataAdded.id);
     chai.assert(realityDataAdded.displayName === realityData.displayName);
     chai.assert(realityDataAdded.group === realityData.group);
     chai.assert(realityDataAdded.dataset === realityData.dataset);
@@ -344,8 +344,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.type === realityData.type);
 
     chai.assert(realityDataAdded.acquisition!.acquirer === realityData.acquisition.acquirer );
-    chai.assert(realityDataAdded.acquisition!.startDateTime === realityData.acquisition.startDateTime);
-    chai.assert(realityDataAdded.acquisition!.endDateTime === realityData.acquisition.endDateTime);
+    chai.assert(realityDataAdded.acquisition!.startDateTime.getTime() === realityData.acquisition.startDateTime.getTime());
+    chai.assert(realityDataAdded.acquisition!.endDateTime!.getTime() === realityData.acquisition.endDateTime!.getTime());
 
     chai.assert(realityDataAdded.extent!.southWest.latitude === 1.0);
     chai.assert(realityDataAdded.extent!.southWest.longitude === 2.0);
