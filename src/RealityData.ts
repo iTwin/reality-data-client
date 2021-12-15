@@ -157,17 +157,17 @@ export class ITwinRealityData implements RealityData {
     if (!this.client)
       throw Error("RealityDataAccessClient is not set.");
 
-    const permission = (writeAccess === true ? "Write" : "Read");
+    const access = (writeAccess === true ? "Write" : "Read");
 
     try {
 
-      const containerCache = this._containerCache.getCache(permission);
+      const containerCache = this._containerCache.getCache(access);
       const blobUrlRequiresRefresh = !containerCache?.timeStamp || (Date.now() - containerCache?.timeStamp.getTime()) > 3000000; // 3 million milliseconds or 50 minutes
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const url = this.iTwinId ?  `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&permissions=${permission}`
-          : `${this.client.baseUrl}/${this.id}/container/?&permissions=${permission}`;
+        const url = this.iTwinId ?  `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&access=${access}`
+          : `${this.client.baseUrl}/${this.id}/container/?&access=${access}`;
         const requestOptions = getRequestOptions(accessToken, url, this.client.apiVersion);
         const response = await axios.get(url, requestOptions);
 
@@ -181,9 +181,9 @@ export class ITwinRealityData implements RealityData {
           timeStamp: new Date(Date.now()),
         };
 
-        this._containerCache.setCache(newContainerCacheValue, permission);
+        this._containerCache.setCache(newContainerCacheValue, access);
       }
-      return this._containerCache.getCache(permission)!.url;
+      return this._containerCache.getCache(access)!.url;
     } catch (errorResponse: any) {
       throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
     }
