@@ -81,6 +81,7 @@ export class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
+  public accessControl?: string;
   public modifiedDateTime?: Date;
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
@@ -122,6 +123,7 @@ export class ITwinRealityData implements RealityData {
       this.classification = realityData.classification;
       this.type = realityData.type;
       this.extent = realityData.extent;
+      this.accessControl = realityData.accessControl;
       this.modifiedDateTime = new Date(realityData.modifiedDateTime);
       this.lastAccessedDateTime = new Date(realityData.lastAccessedDateTime);
       this.createdDateTime = new Date(realityData.createdDateTime);
