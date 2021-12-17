@@ -329,6 +329,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
         longitude: 2.1,
       },
     };
+    realityData.accessControl = "Project";
     realityData.authoring = false;
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -350,6 +351,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.extent!.northEast.latitude === 1.1);
     chai.assert(realityDataAdded.extent!.northEast.longitude === 2.1);
 
+    chai.assert(realityDataAdded.accessControl === "Project");
     chai.assert(realityDataAdded.authoring === false);
     chai.assert(realityDataAdded.dataCenterLocation === "East US");
 

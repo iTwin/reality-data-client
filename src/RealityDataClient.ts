@@ -204,6 +204,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
         acquisition: iTwinRealityData.acquisition,
         authoring: iTwinRealityData.authoring,
         extent: iTwinRealityData.extent,
+        accessControl: iTwinRealityData.accessControl,
       };
 
       const createPayload = {
