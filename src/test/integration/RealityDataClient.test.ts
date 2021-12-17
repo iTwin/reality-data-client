@@ -40,13 +40,10 @@ const realityDataClientConfig: RealityDataClientOptions = {
 };
 
 describe("RealityServicesClient Normal (#integration)", () => {
-  // const realityDataServiceClient: RealityDataAccessClient = new RealityDataAccessClient();
-  // const imsClient: ImsAuthorizationClient = new ImsAuthorizationClient();
 
   let iTwinId: GuidString;
 
   const tilesId: string = "f2065aea-5dcd-49e2-9077-e082dde506bc";
-  // const tilesIdWithRootDocPath: string = "3317b4a0-0086-4f16-a979-6ceb496d785e";
 
   let accessToken: AccessToken;
 
@@ -297,6 +294,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataResponse.extent?.southWest.longitude === -122.9543);
     chai.assert(realityDataResponse.extent?.northEast.latitude === 50.1172);
     chai.assert(realityDataResponse.extent?.northEast.longitude === -122.9543);
+    chai.assert(realityDataResponse.accessControl === "Project");
     chai.assert(realityDataResponse.authoring === false);
     chai.assert(realityDataResponse.dataCenterLocation === "East US");
     chai.assert(realityDataResponse.modifiedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
