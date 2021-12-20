@@ -1,6 +1,6 @@
 {
   "name": "@itwin/reality-data-client",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Reality Data Client for the iTwin platform",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
