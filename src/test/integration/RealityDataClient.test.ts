@@ -303,7 +303,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   });
 
-  it("should be able to create a reality data (without specific identifier) and delete it", async () => {
+  it("should be able to create, then modify a reality data (without specific identifier) and delete it", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
     const realityData = new ITwinRealityData(realityDataAccessClient);
@@ -329,7 +329,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
         longitude: 2.1,
       },
     };
-    realityData.accessControl = "Project";
+    // realityData.accessControl = "Project";
     realityData.authoring = false;
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -342,7 +342,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.classification === realityData.classification);
     chai.assert(realityDataAdded.type === realityData.type);
 
-    chai.assert(realityDataAdded.acquisition!.acquirer === realityData.acquisition.acquirer );
+    chai.assert(realityDataAdded.acquisition!.acquirer === realityData.acquisition.acquirer);
     chai.assert(realityDataAdded.acquisition!.startDateTime.getTime() === realityData.acquisition.startDateTime.getTime());
     chai.assert(realityDataAdded.acquisition!.endDateTime!.getTime() === realityData.acquisition.endDateTime!.getTime());
 
@@ -359,6 +359,11 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.lastAccessedDateTime!.getTime());
     chai.assert(realityDataAdded.createdDateTime!.getTime());
     // At creation the last accessed time stamp remains null. ?
+
+    realityDataAdded.displayName = "MODIFIED iTwinjs RealityData Client create and delete test";
+    const realityDataModified = await realityDataAccessClient.modifyRealityData(accessToken, iTwinId, realityDataAdded);
+
+    chai.assert(realityDataModified.displayName === realityDataAdded.displayName);
 
     chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, iTwinId, realityDataAdded.id));
   });

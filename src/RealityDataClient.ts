@@ -106,8 +106,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
     try {
       const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
       if (realityDataResponse.status !== 200)
-        throw new Error(iTwinId? `Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`
-          :`Could not fetch reality data: ${realityDataId}` );
+        throw new Error(iTwinId ? `Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`
+          : `Could not fetch reality data: ${realityDataId}`);
 
       const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
 
@@ -152,8 +152,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
       const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       if (response.status !== 200)
-        throw new Error(iTwinId? `Could not fetch reality data with iTwinId ${iTwinId}`
-          : `Could not fetch reality data` );
+        throw new Error(iTwinId ? `Could not fetch reality data with iTwinId ${iTwinId}`
+          : `Could not fetch reality data`);
 
       const realityDatasResponseBody = response.data;
 
@@ -212,7 +212,51 @@ export class RealityDataAccessClient implements RealityDataAccess {
         realityData: realityDataToCreate,
       };
 
-      const response = await axios.post(url, createPayload, options); // rename itwinId to projectId
+      const response = await axios.post(url, createPayload, options);
+
+      iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+
+    return iTwinRealityData;
+  }
+
+  /**
+  * Modifies an existing RealityData
+  * @param accessToken The client request context.
+  * @param iTwinId id of associated iTwin
+  * @param iTwinRealityDAta the realityData to modify
+  */
+  public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
+    try {
+      const url = `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}`;
+
+      const options = getRequestConfig(accessToken, "PATCH", url, this.apiVersion);
+
+      // payload
+
+      const realityDataToModify = {
+        id: iTwinRealityData.id,
+        displayName: iTwinRealityData.displayName,
+        classification: iTwinRealityData.classification,
+        type: iTwinRealityData.type,
+        dataset: iTwinRealityData.dataset,
+        group: iTwinRealityData.group,
+        description: iTwinRealityData.description,
+        rootDocument: iTwinRealityData.rootDocument,
+        acquisition: iTwinRealityData.acquisition,
+        authoring: iTwinRealityData.authoring,
+        extent: iTwinRealityData.extent,
+        // accessControl: iTwinRealityData.accessControl, this is readonly for the moment
+      };
+
+      const modifyPayload = {
+        projectId: iTwinId,
+        realityData: realityDataToModify,
+      };
+
+      const response = await axios.patch(url, modifyPayload, options);
 
       iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
     } catch (errorResponse: any) {
@@ -236,7 +280,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
       const url = `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
       const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
 
-      response = await axios.delete(url, options); // rename itwinId to projectId
+      response = await axios.delete(url, options);
 
     } catch (errorResponse: any) {
       throw Error(`API request error: ${errorResponse}`);
