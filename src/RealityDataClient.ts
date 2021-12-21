@@ -267,7 +267,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-   * Delets a RealityData
+   * Deletes a RealityData
     * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin
    * @param iTwinRealityDAta the realityData to delete
@@ -279,6 +279,54 @@ export class RealityDataAccessClient implements RealityDataAccess {
     try {
       const url = `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
       const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+
+      response = await axios.delete(url, options);
+
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+    if (response.status === 204)
+      return true;
+    else return false;
+  }
+
+  /**
+   * Associates a RealityData to an iTwin
+   * @param accessToken The client request context.
+   * @param iTwinIdToAssociate id of iTwin to associate the realityData to.
+   * @param realityDataId id of the RealityData to associate.
+   * @returns true if successful (204 response) or false if not
+   */
+  public async associateRealityData(accessToken: AccessToken, iTwinIdToAssociate: string, realityDataId: string): Promise<boolean> {
+
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinIdToAssociate}`;
+      const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
+
+      response = await axios.put(url, options);
+
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+    if (response.status === 204)
+      return true;
+    else return false;
+  }
+
+  /**
+  * Dissociates a RealityData to an iTwin
+  * @param accessToken The client request context.
+  * @param iTwinIdToDissociate id of iTwin to associate the realityData to.
+  * @param realityDataId id of the RealityData to associate.
+  * @returns true if successful (204 response) or false if not
+  */
+  public async dissociateRealityData(accessToken: AccessToken, iTwinIdToDissociate: string, realityDataId: string): Promise<boolean> {
+
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinIdToDissociate}`;
+      const options = getRequestConfig(accessToken, "DELETE", url, this.apiVersion);
 
       response = await axios.delete(url, options);
 
