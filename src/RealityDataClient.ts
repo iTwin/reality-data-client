@@ -271,7 +271,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin
    * @param iTwinRealityDAta the realityData to delete
-   * @returns true if successful, false if not
+   * @returns true if successful (204 response), false if not
    */
   public async deleteRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<boolean> {
 
@@ -295,7 +295,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param accessToken The client request context.
    * @param iTwinIdToAssociate id of iTwin to associate the realityData to.
    * @param realityDataId id of the RealityData to associate.
-   * @returns true if successful (204 response) or false if not
+   * @returns true if successful (201 response) or false if not
    */
   public async associateRealityData(accessToken: AccessToken, iTwinIdToAssociate: string, realityDataId: string): Promise<boolean> {
 
