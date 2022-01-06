@@ -304,12 +304,12 @@ export class RealityDataAccessClient implements RealityDataAccess {
       const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinIdToAssociate}`;
       const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
 
-      response = await axios.put(url, options);
+      response = await axios.put(url, undefined, options);
 
     } catch (errorResponse: any) {
       throw Error(`API request error: ${errorResponse}`);
     }
-    if (response.status === 204)
+    if (response.status === 201)
       return true;
     else return false;
   }
