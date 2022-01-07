@@ -364,7 +364,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityDataModified.displayName === realityDataAdded.displayName);
 
-    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, iTwinId, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
   });
 
   it("should be able to create RealityData, associate, dissociate, and delete it", async () => {
@@ -383,7 +383,25 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(await realityDataAccessClient.dissociateRealityData(accessToken,iTwinId2, realityDataAdded.id));
 
-    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, iTwinId, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
   });
 
+  it("should be able to create RealityData, modify, and delete (Without iTwinId)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    const realityData = new ITwinRealityData(realityDataAccessClient);
+    realityData.displayName = "iTwinjs RealityData Client CRUD test without iTwinId";
+    realityData.classification = "Undefined";
+    realityData.type = "Undefined";
+
+    // current test user belongs to no organization and needs a project to create realityData. However, the modify without iTwinId can be tested.
+    const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
+
+    realityDataAdded.displayName = "MODIFIED iTwinjs RealityData Client CRUD test without iTwinId";
+    const realityDataModified = await realityDataAccessClient.modifyRealityData(accessToken, undefined, realityDataAdded);
+
+    chai.assert(realityDataModified.displayName === realityDataAdded.displayName);
+
+    chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
+  });
 });

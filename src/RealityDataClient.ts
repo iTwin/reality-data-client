@@ -188,7 +188,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    */
   public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
-      const url = `${this.baseUrl}?projectId=${iTwinId}`;
+      const url = this.baseUrl;
       const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
 
       // creation payload
@@ -207,10 +207,14 @@ export class RealityDataAccessClient implements RealityDataAccess {
         accessControl: iTwinRealityData.accessControl,
       };
 
-      const createPayload = {
-        projectId: iTwinId,
-        realityData: realityDataToCreate,
-      };
+      const createPayload = iTwinId ?
+        {
+          projectId: iTwinId,
+          realityData: realityDataToCreate,
+        } :
+        {
+          realityData: realityDataToCreate,
+        };
 
       const response = await axios.post(url, createPayload, options);
 
@@ -230,8 +234,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   */
   public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
-      const url = `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}`;
-
+      const url = iTwinId ? `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}` : `${this.baseUrl}/${iTwinRealityData.id}`;
       const options = getRequestConfig(accessToken, "PATCH", url, this.apiVersion);
 
       // payload
@@ -251,10 +254,14 @@ export class RealityDataAccessClient implements RealityDataAccess {
         // accessControl: iTwinRealityData.accessControl, this is readonly for the moment
       };
 
-      const modifyPayload = {
-        projectId: iTwinId,
-        realityData: realityDataToModify,
-      };
+      const modifyPayload = iTwinId ?
+        {
+          projectId: iTwinId,
+          realityData: realityDataToModify,
+        } :
+        {
+          realityData: realityDataToModify,
+        };
 
       const response = await axios.patch(url, modifyPayload, options);
 
@@ -268,16 +275,15 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
   /**
    * Deletes a RealityData
-    * @param accessToken The client request context.
-   * @param iTwinId id of associated iTwin
+   * @param accessToken The client request context.
    * @param iTwinRealityDAta the realityData to delete
    * @returns true if successful (204 response), false if not
    */
-  public async deleteRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<boolean> {
+  public async deleteRealityData(accessToken: AccessToken, realityDataId: string): Promise<boolean> {
 
     let response: AxiosResponse;
     try {
-      const url = `${this.baseUrl}/${realityDataId}?projectId=${iTwinId}`;
+      const url = `${this.baseUrl}/${realityDataId}`;
       const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
 
       response = await axios.delete(url, options);
@@ -293,15 +299,15 @@ export class RealityDataAccessClient implements RealityDataAccess {
   /**
    * Associates a RealityData to an iTwin
    * @param accessToken The client request context.
-   * @param iTwinIdToAssociate id of iTwin to associate the realityData to.
-   * @param realityDataId id of the RealityData to associate.
+   * @param iTwinId id of iTwin to associate the realityData to.
+   * @param realityDataId id of the RealityData.
    * @returns true if successful (201 response) or false if not
    */
-  public async associateRealityData(accessToken: AccessToken, iTwinIdToAssociate: string, realityDataId: string): Promise<boolean> {
+  public async associateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
 
     let response: AxiosResponse;
     try {
-      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinIdToAssociate}`;
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
       const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
 
       response = await axios.put(url, undefined, options);
@@ -317,15 +323,15 @@ export class RealityDataAccessClient implements RealityDataAccess {
   /**
   * Dissociates a RealityData to an iTwin
   * @param accessToken The client request context.
-  * @param iTwinIdToDissociate id of iTwin to associate the realityData to.
-  * @param realityDataId id of the RealityData to associate.
+  * @param iTwinId id of iTwin to dissociate the realityData from.
+  * @param realityDataId id of the RealityData.
   * @returns true if successful (204 response) or false if not
   */
-  public async dissociateRealityData(accessToken: AccessToken, iTwinIdToDissociate: string, realityDataId: string): Promise<boolean> {
+  public async dissociateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
 
     let response: AxiosResponse;
     try {
-      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinIdToDissociate}`;
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
       const options = getRequestConfig(accessToken, "DELETE", url, this.apiVersion);
 
       response = await axios.delete(url, options);
