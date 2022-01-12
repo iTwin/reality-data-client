@@ -102,6 +102,22 @@ describe("RealityServicesClient Normal (#integration)", () => {
     }
   });
 
+  it("should be able to get project information from a RealityData", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "id of realitydata with 2 projects");
+
+    chai.assert(realityData);
+    // get all projects information
+    const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
+    chai.assert(projects);
+    chai.assert(projects.length === 2);
+    projects.forEach((value) => {
+      chai.assert(value.id);
+      chai.assert(value.projectDetailsLink);
+    });
+
+  });
+
   it("should be able to retrieve the azure blob url", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
@@ -379,9 +395,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
 
-    chai.assert(await realityDataAccessClient.associateRealityData(accessToken,iTwinId2, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.associateRealityData(accessToken, iTwinId2, realityDataAdded.id));
 
-    chai.assert(await realityDataAccessClient.dissociateRealityData(accessToken,iTwinId2, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId2, realityDataAdded.id));
 
     chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
   });

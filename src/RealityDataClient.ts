@@ -12,6 +12,7 @@ import type { AccessToken } from "@itwin/core-bentley";
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
 import axios, { AxiosResponse } from "axios";
+import { Project } from "./Projects";
 
 import { ITwinRealityData } from "./RealityData";
 import { getRequestConfig } from "./RequestOptions";
@@ -178,6 +179,29 @@ export class RealityDataAccessClient implements RealityDataAccess {
       return continuationToken[continuationToken.length - 1];
     }
     return undefined;
+  }
+
+  public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
+    try {
+      // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
+      const url = `${this.baseUrl}/${realityDataId}/projects`;
+      const options = getRequestConfig(accessToken, "GET", url, this.apiVersion);
+
+      // execute query
+      const response = await axios.get(url, options);
+
+      const projectsResponseBody = response.data;
+
+      const projectsResponse: Project[] = [];
+
+      projectsResponseBody.projects.forEach((projectValue: any) => {
+        projectsResponse.push(new Project(projectValue));
+      });
+
+      return projectsResponse;
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
   }
 
   /**

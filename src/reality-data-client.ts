@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 export * from "./RealityDataClient";
 export * from "./RealityData";
+export * from "./Projects";
 
 /** @docs-package-description
  * The reality-data-client package enables integration with reality data stored in ProjectWise Context Share (Reality Data Service).
