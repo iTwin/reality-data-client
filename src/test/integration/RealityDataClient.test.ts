@@ -134,10 +134,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(url.href === url2.href);
 
     // test without projectId
-    // b93bf5d4-7ccd-45fd-8a1d-8d579ff33541
     await delay(1000);
 
-    const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, "b93bf5d4-7ccd-45fd-8a1d-8d579ff33541");
+    const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
     const url3: URL = await realityData2.getBlobUrl(accessToken, "test");
     chai.assert(url3);
     chai.assert(url3.toString().includes("test"));

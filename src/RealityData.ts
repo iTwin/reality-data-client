@@ -64,7 +64,7 @@ interface ContainerCacheValue {
  * In addition to the reality data properties, and Azure blob URL and internal states, a reality data also contains
  * the identification of the iTwin to be used for access permissions and
  * may contain a RealityDataClient to obtain the specialization to communicate with Reality Data API (to obtain the Azure blob URL).
- * @internal
+ * @beta
  */
 export class ITwinRealityData implements RealityData {
 
@@ -97,6 +97,7 @@ export class ITwinRealityData implements RealityData {
 
   /**
    * Creates an instance of RealityData.
+   * @beta
    */
   public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
@@ -137,6 +138,7 @@ export class ITwinRealityData implements RealityData {
      * @param accessToken The client request context.
      * @param blobPath name or path of tile
      * @returns string url for blob data
+     * @beta
      */
   public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
     const url = await this.getContainerUrl(accessToken);
@@ -152,6 +154,7 @@ export class ITwinRealityData implements RealityData {
      * Gets a tile access url URL object
      * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
      * @returns app URL object for blob url
+     * @beta
      */
   private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
 
