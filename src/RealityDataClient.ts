@@ -54,7 +54,7 @@ export interface RealityDataResponse {
 
 /**
  * Client wrapper to Reality Data Service.
- * An instance of this class is used to extract reality data from the ProjectWise Context Share (Reality Data Service)
+ * An instance of this class is used to extract reality data from the Reality Data API.
  * Most important methods enable to obtain a specific reality data, fetch all reality data associated with an iTwin and
  * all reality data of an iTwin within a provided spatial extent.
  * This class also implements extraction of the Azure blob address.

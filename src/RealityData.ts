@@ -56,14 +56,14 @@ interface ContainerCacheValue {
 }
 
 /** RealityData
- * This class implements a Reality Data stored in ProjectWise Context Share (Reality Data Service)
+ * This class implements a Reality Data stored in the RealityData API.
  * Data is accessed directly through methods of the reality data instance.
  * Access to the data required a properly entitled token though the access to the blob is controlled through
  * an Azure blob URL, the token may be required to obtain this Azure blob URL or refresh it.
  * The Azure blob URL is considered valid for an hour and is refreshed after 50 minutes.
  * In addition to the reality data properties, and Azure blob URL and internal states, a reality data also contains
  * the identification of the iTwin to be used for access permissions and
- * may contain a RealityDataClient to obtain the WSG client specialization to communicate with ProjectWise Context Share (to obtain the Azure blob URL).
+ * may contain a RealityDataClient to obtain the specialization to communicate with Reality Data API (to obtain the Azure blob URL).
  * @internal
  */
 export class ITwinRealityData implements RealityData {
@@ -104,7 +104,6 @@ export class ITwinRealityData implements RealityData {
     this._containerCache = new ContainerCache();
 
     if (realityData) {
-      // fill in properties
       this.id = realityData.id;
       this.displayName = realityData.displayName;
       this.dataset = realityData.dataset;
