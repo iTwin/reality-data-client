@@ -104,7 +104,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   it("should be able to get project information from a RealityData", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
-    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "id of realitydata with 2 projects");
+
+    // displayName: iTwinjs RealityData Client get projects test, id: d344d5ec-5068-4752-9432-ff1c8f087111
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "d344d5ec-5068-4752-9432-ff1c8f087111");
 
     chai.assert(realityData);
     // get all projects information
