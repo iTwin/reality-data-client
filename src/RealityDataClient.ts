@@ -12,11 +12,13 @@ import type { AccessToken } from "@itwin/core-bentley";
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
 import axios, { AxiosResponse } from "axios";
+import { Project } from "./Projects";
 
 import { ITwinRealityData } from "./RealityData";
 import { getRequestConfig } from "./RequestOptions";
 
 /** Options for initializing Reality Data Client
+ * @beta
 */
 export interface RealityDataClientOptions {
   /** API Version. v1 by default */
@@ -32,6 +34,7 @@ export enum ApiVersion {
 
 /** Criteria used to query for reality data associated with an iTwin context.
  * @see getRealityDatas
+ * @beta
  */
 export interface RealityDataQueryCriteria {
   /** If supplied, only reality data overlapping this range will be included. */
@@ -53,10 +56,11 @@ export interface RealityDataResponse {
 
 /**
  * Client wrapper to Reality Data Service.
- * An instance of this class is used to extract reality data from the ProjectWise Context Share (Reality Data Service)
+ * An instance of this class is used to extract reality data from the Reality Data API.
  * Most important methods enable to obtain a specific reality data, fetch all reality data associated with an iTwin and
  * all reality data of an iTwin within a provided spatial extent.
  * This class also implements extraction of the Azure blob address.
+ * @beta
  */
 export class RealityDataAccessClient implements RealityDataAccess {
 
@@ -83,6 +87,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param iTwinId the iTwin identifier
    * @param realityDataId realityData identifier
    * @returns string containing the URL to reality data for indicated tile.
+   * @beta
    */
   public async getRealityDataUrl(iTwinId: string | undefined, realityDataId: string): Promise<string> {
 
@@ -96,8 +101,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * Gets reality data with all of its properties
    * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin (or project)
-   * @param realityDataId realityDataInstance id, called tilesId when returned from tile generator job
+   * @param realityDataId realityData identifier
    * @returns The requested reality data.
+   * @beta
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
 
@@ -123,6 +129,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param iTwinId id of associated iTwin
   * @param criteria Criteria by which to query.
   * @returns an array of RealityData that are associated to the iTwin.
+  * @beta
   */
   public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
     try {
@@ -181,10 +188,41 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
+  * Retrieves the list of projects associated to the specified realityData.
+  * @param accessToken The client request context.
+  * @param realityDataId realityData identifier
+  * @returns an array of Projects that are associated to the realityData.
+  * @beta
+  */
+  public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
+    try {
+      // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
+      const url = `${this.baseUrl}/${realityDataId}/projects`;
+      const options = getRequestConfig(accessToken, "GET", url, this.apiVersion);
+
+      // execute query
+      const response = await axios.get(url, options);
+
+      const projectsResponseBody = response.data;
+
+      const projectsResponse: Project[] = [];
+
+      projectsResponseBody.projects.forEach((projectValue: any) => {
+        projectsResponse.push(new Project(projectValue));
+      });
+
+      return projectsResponse;
+    } catch (errorResponse: any) {
+      throw Error(`API request error: ${errorResponse}`);
+    }
+  }
+
+  /**
    * Creates a RealityData
    * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin
    * @param iTwinRealityDAta the realityData to create
+   * @beta
    */
   public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
@@ -231,6 +269,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param accessToken The client request context.
   * @param iTwinId id of associated iTwin
   * @param iTwinRealityDAta the realityData to modify
+  * @beta
   */
   public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
@@ -278,6 +317,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param accessToken The client request context.
    * @param iTwinRealityDAta the realityData to delete
    * @returns true if successful (204 response), false if not
+   * @beta
    */
   public async deleteRealityData(accessToken: AccessToken, realityDataId: string): Promise<boolean> {
 
@@ -302,6 +342,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param iTwinId id of iTwin to associate the realityData to.
    * @param realityDataId id of the RealityData.
    * @returns true if successful (201 response) or false if not
+   * @beta
    */
   public async associateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
 
@@ -326,6 +367,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param iTwinId id of iTwin to dissociate the realityData from.
   * @param realityDataId id of the RealityData.
   * @returns true if successful (204 response) or false if not
+  * @beta
   */
   public async dissociateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
 

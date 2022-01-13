@@ -102,6 +102,24 @@ describe("RealityServicesClient Normal (#integration)", () => {
     }
   });
 
+  it("should be able to get project information from a RealityData", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    // displayName: iTwinjs RealityData Client get projects test, id: d344d5ec-5068-4752-9432-ff1c8f087111
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "d344d5ec-5068-4752-9432-ff1c8f087111");
+
+    chai.assert(realityData);
+    // get all projects information
+    const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
+    chai.assert(projects);
+    chai.assert(projects.length === 2);
+    projects.forEach((value) => {
+      chai.assert(value.id);
+      chai.assert(value.projectDetailsLink);
+    });
+
+  });
+
   it("should be able to retrieve the azure blob url", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, tilesId);
@@ -116,10 +134,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(url.href === url2.href);
 
     // test without projectId
-    // b93bf5d4-7ccd-45fd-8a1d-8d579ff33541
     await delay(1000);
 
-    const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, "b93bf5d4-7ccd-45fd-8a1d-8d579ff33541");
+    const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
     const url3: URL = await realityData2.getBlobUrl(accessToken, "test");
     chai.assert(url3);
     chai.assert(url3.toString().includes("test"));
@@ -379,9 +396,9 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
 
-    chai.assert(await realityDataAccessClient.associateRealityData(accessToken,iTwinId2, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.associateRealityData(accessToken, iTwinId2, realityDataAdded.id));
 
-    chai.assert(await realityDataAccessClient.dissociateRealityData(accessToken,iTwinId2, realityDataAdded.id));
+    chai.assert(await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId2, realityDataAdded.id));
 
     chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
   });

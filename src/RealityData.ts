@@ -56,15 +56,15 @@ interface ContainerCacheValue {
 }
 
 /** RealityData
- * This class implements a Reality Data stored in ProjectWise Context Share (Reality Data Service)
+ * This class implements a Reality Data instance.
  * Data is accessed directly through methods of the reality data instance.
  * Access to the data required a properly entitled token though the access to the blob is controlled through
  * an Azure blob URL, the token may be required to obtain this Azure blob URL or refresh it.
  * The Azure blob URL is considered valid for an hour and is refreshed after 50 minutes.
  * In addition to the reality data properties, and Azure blob URL and internal states, a reality data also contains
  * the identification of the iTwin to be used for access permissions and
- * may contain a RealityDataClient to obtain the WSG client specialization to communicate with ProjectWise Context Share (to obtain the Azure blob URL).
- * @internal
+ * may contain a RealityDataClient to obtain the specialization to communicate with Reality Data API (to obtain the Azure blob URL).
+ * @beta
  */
 export class ITwinRealityData implements RealityData {
 
@@ -86,17 +86,18 @@ export class ITwinRealityData implements RealityData {
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
 
-  // Link to client to fetch the blob url
+  /** Link to client to fetch the blob url */
   public client: undefined | RealityDataAccessClient;
 
-  // The GUID of the iTwin used when using the client.
+  /** The GUID identifier of the iTwin used when using the client. */
   public iTwinId: GuidString;
 
-  // Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path.
+  /** Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path. */
   private _containerCache: ContainerCache;
 
   /**
    * Creates an instance of RealityData.
+   * @beta
    */
   public constructor(client: RealityDataAccessClient, realityData?: any | undefined, iTwinId?: any | undefined) {
 
@@ -104,7 +105,6 @@ export class ITwinRealityData implements RealityData {
     this._containerCache = new ContainerCache();
 
     if (realityData) {
-      // fill in properties
       this.id = realityData.id;
       this.displayName = realityData.displayName;
       this.dataset = realityData.dataset;
@@ -138,6 +138,7 @@ export class ITwinRealityData implements RealityData {
      * @param accessToken The client request context.
      * @param blobPath name or path of tile
      * @returns string url for blob data
+     * @beta
      */
   public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
     const url = await this.getContainerUrl(accessToken);
@@ -153,6 +154,7 @@ export class ITwinRealityData implements RealityData {
      * Gets a tile access url URL object
      * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
      * @returns app URL object for blob url
+     * @beta
      */
   private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
 
