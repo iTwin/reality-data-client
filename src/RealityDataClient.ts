@@ -97,7 +97,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * Gets reality data with all of its properties
    * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin (or project)
-   * @param realityDataId realityDataInstance id, called tilesId when returned from tile generator job
+   * @param realityDataId realityData identifier
    * @returns The requested reality data.
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
@@ -181,6 +181,12 @@ export class RealityDataAccessClient implements RealityDataAccess {
     return undefined;
   }
 
+  /**
+  * Retrieves the list of projects associated to the specified realityData.
+  * @param accessToken The client request context.
+  * @param realityDataId realityData identifier
+  * @returns an array of Projects that are associated to the realityData.
+  */
   public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
     try {
       // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
