@@ -86,13 +86,13 @@ export class ITwinRealityData implements RealityData {
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
 
-  // Link to client to fetch the blob url
+  /** Link to client to fetch the blob url */
   public client: undefined | RealityDataAccessClient;
 
-  // The GUID of the iTwin used when using the client.
+  /** The GUID identifier of the iTwin used when using the client. */
   public iTwinId: GuidString;
 
-  // Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path.
+  /** Cache parameters for reality data access. Contains the blob url, the timestamp to refresh (every 50 minutes) the url and the root document path. */
   private _containerCache: ContainerCache;
 
   /**
