@@ -56,7 +56,7 @@ interface ContainerCacheValue {
 }
 
 /** RealityData
- * This class implements a Reality Data stored in the RealityData API.
+ * This class implements a Reality Data instance.
  * Data is accessed directly through methods of the reality data instance.
  * Access to the data required a properly entitled token though the access to the blob is controlled through
  * an Azure blob URL, the token may be required to obtain this Azure blob URL or refresh it.
