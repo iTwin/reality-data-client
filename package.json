@@ -1,6 +1,6 @@
 {
   "name": "@itwin/reality-data-client",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Reality Data Client for the iTwin platform",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
@@ -61,7 +61,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^14.2.0",
-    "dotenv-expand": "^6.0.1",
+    "dotenv-expand": "^5.1.0",
     "eslint": "^7.11.0",
     "os": "^0.1.2",
     "rimraf": "^3.0.2",
