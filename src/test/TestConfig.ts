@@ -3,8 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import type { AccessToken } from "@itwin/core-bentley";
-import { Project, ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
-import { getAccessTokenFromBackend, TestUserCredentials, TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
+import type { Project} from "@itwin/projects-client";
+import { ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
+import type { TestUserCredentials} from "@itwin/oidc-signin-tool/lib/cjs/frontend";
+import { getAccessTokenFromBackend, TestUsers } from "@itwin/oidc-signin-tool/lib/cjs/frontend";
 
 /** Basic configuration used by all tests
  */

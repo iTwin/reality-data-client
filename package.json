@@ -1,6 +1,6 @@
 {
   "name": "@itwin/reality-data-client",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Reality Data Client for the iTwin platform",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
@@ -20,6 +20,7 @@
     "extract-api": "betools extract-api --entry=reality-data-client",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/clients/reality-data-client/file.json --tsIndexFile=reality-data-client.ts --onlyJson",
     "lint": "eslint -f visualstudio \"./src/**/*.ts\" 1>&2",
+    "lint:fix": "npm run lint -- --fix",
     "webpackTests": "webpack --config ./src/test/utils/webpack.config.js 1>&2",
     "test": "",
     "test:integration": "npm run build && npm run -s webpackTests && npm run -s test:integration:chrome",
@@ -44,16 +45,13 @@
     "axios": "^0.25.0",
     "@itwin/core-geometry": "^3.0.0"
   },
-  "peerDependencies": {
-    "@itwin/core-common": "^3.0.0"
-  },
   "devDependencies": {
     "@itwin/build-tools": "^3.0.0",
     "@itwin/certa": "^3.0.0",
     "@itwin/core-bentley": "^3.0.0",
     "@itwin/core-common": "^3.0.0",
     "@itwin/eslint-plugin": "^3.0.0",
-    "@itwin/oidc-signin-tool": "3.1.0",
+    "@itwin/oidc-signin-tool": "^3.2.0",
     "@itwin/projects-client": "^0.3.0",
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.4",
@@ -73,6 +71,10 @@
     "plugins": [
       "@itwin"
     ],
-    "extends": "plugin:@itwin/itwinjs-recommended"
+    "extends": "plugin:@itwin/itwinjs-recommended",
+    "rules": {
+      "no-duplicate-imports": "off",
+      "@typescript-eslint/consistent-type-imports": "error"
+    }
   }
 }
