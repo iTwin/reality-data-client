@@ -103,6 +103,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param iTwinId id of associated iTwin (or project)
    * @param realityDataId realityData identifier
    * @returns The requested reality data.
+   * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+   * @throws [[BentleyError]] with code 404 when the specified reality data is not found
+   * @throws [[BentleyError]] with code 422 when the request is invalid
    * @beta
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
@@ -128,6 +131,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param iTwinId id of associated iTwin
   * @param criteria Criteria by which to query.
   * @returns an array of RealityData that are associated to the iTwin.
+  * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+  * @throws [[BentleyError]] with code 422 when the request is invalid
   * @beta
   */
   public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
@@ -193,6 +198,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param accessToken The client request context.
   * @param realityDataId realityData identifier
   * @returns an array of Projects that are associated to the realityData.
+  * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
   * @beta
   */
   public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
@@ -224,6 +230,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param accessToken The client request context.
    * @param iTwinId id of associated iTwin
    * @param iTwinRealityDAta the realityData to create
+   * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+   * @throws [[BentleyError]] with code 403 when user does not have required permissions to create a reality data
+   * @throws [[BentleyError]] with code 422 when the request is invalid
    * @beta
    */
   public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
@@ -271,6 +280,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param accessToken The client request context.
   * @param iTwinId id of associated iTwin
   * @param iTwinRealityDAta the realityData to modify
+  * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+  * @throws [[BentleyError]] with code 404 when the specified reality data was not found
+  * @throws [[BentleyError]] with code 422 when the request is invalid
   * @beta
   */
   public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
@@ -319,6 +331,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param accessToken The client request context.
    * @param iTwinRealityDAta the realityData to delete
    * @returns true if successful (204 response), false if not
+   * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+   * @throws [[BentleyError]] with code 404 when the specified reality data was not found
+   * @throws [[BentleyError]] with code 422 when the request is invalid
    * @beta
    */
   public async deleteRealityData(accessToken: AccessToken, realityDataId: string): Promise<boolean> {
@@ -345,6 +360,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @param iTwinId id of iTwin to associate the realityData to.
    * @param realityDataId id of the RealityData.
    * @returns true if successful (201 response) or false if not
+   * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+   * @throws [[BentleyError]] with code 404 when the specified reality data or project was not found
+   * @throws [[BentleyError]] with code 422 when the request is invalid
    * @beta
    */
   public async associateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
@@ -370,6 +388,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @param iTwinId id of iTwin to dissociate the realityData from.
   * @param realityDataId id of the RealityData.
   * @returns true if successful (204 response) or false if not
+  * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+  * @throws [[BentleyError]] with code 404 when the association between the reality data and project was not found
+  * @throws [[BentleyError]] with code 422 when the request is invalid
   * @beta
   */
   public async dissociateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
