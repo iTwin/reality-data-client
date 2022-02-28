@@ -110,6 +110,12 @@ export class RealityDataAccessClient implements RealityDataAccess {
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
     try {
       const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
+
+      // Axios throws on 4XX and 5XX; we make sure the response here is 200
+      if (realityDataResponse.status !== 200)
+        throw new BentleyError(422, iTwinId ? `Could not fetch reality data: ${realityDataId} with iTwinId ${iTwinId}`
+          : `Could not fetch reality data: ${realityDataId}`);
+
       const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
       return realityData;
     } catch (error) {
