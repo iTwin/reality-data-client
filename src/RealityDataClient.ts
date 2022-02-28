@@ -11,7 +11,7 @@ import type { AccessToken } from "@itwin/core-bentley";
 
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
-import { ResponseError } from "@bentley/itwin-client";
+import { BentleyError } from "@itwin/core-bentley";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { Project } from "./Projects";
 
@@ -107,20 +107,14 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @beta
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
-
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
-
-    return await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion))
-      .then((response: AxiosResponse) => {
-        // Handle response
-        const realityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
-        return realityData;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      }
-    )
+    try {
+      const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
+      const realityData = new ITwinRealityData(this, realityDataResponse.data.realityData, iTwinId);
+      return realityData;
+    } catch (error) {
+      return this.handleError(error);
+    }
   }
 
   /**
@@ -132,6 +126,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @beta
   */
   public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
+    try {
       // {api-url}/realitydata/[?projectId][&continuationToken][&$top][&extent]
       let url = iTwinId ? `${this.baseUrl}?projectId=${iTwinId}` : this.baseUrl;
 
@@ -142,9 +137,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
         if (criteria.top) {
           const top = criteria.top;
-          if (top > 500)
-            throw new ResponseError(422, "Maximum value for top parameter is 500.");
-            url += `&$top=${top}`;
+          if (top > 500) {
+            throw new BentleyError(422, "Maximum value for top parameter is 500.");
+          }
+          url += `&$top=${top}`;
         }
 
         if (criteria.extent) {
@@ -154,29 +150,30 @@ export class RealityDataAccessClient implements RealityDataAccess {
         }
       }
 
-      // execute query
-      return await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)))
-        .then((response: AxiosResponse) => {
-          // Handle response
-          const realityDatasResponseBody = response.data;
+      const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)))
 
-          const realityDataResponse: RealityDataResponse = {
-            realityDatas: [],
-            continuationToken: this.extractContinuationToken(response.data._links?.next?.href),
-          };
+      // Axios throws on 4XX and 5XX; we make sure the response here is 200
+      if (response.status !== 200)
+        throw new BentleyError(422, iTwinId ? `Could not fetch reality data with iTwinId ${iTwinId}`
+          : `Could not fetch reality data`);
 
-          realityDatasResponseBody.realityData.forEach((realityData: any) => {
-            realityDataResponse.realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
-          });
+      const realityDatasResponseBody = response.data;
 
-          return realityDataResponse;
-        })
-        .catch((error: AxiosError) => {
-          // throw ResponseError with status and message from APIM
-          throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-        }
-      )
+      const realityDataResponse: RealityDataResponse = {
+        realityDatas: [],
+        continuationToken: this.extractContinuationToken(response.data._links?.next?.href),
+      };
+
+      realityDatasResponseBody.realityData.forEach((realityData: any) => {
+        realityDataResponse.realityDatas.push(new ITwinRealityData(this, realityData, iTwinId));
+      });
+
+      return realityDataResponse;
+
+    } catch (error) {
+      return this.handleError(error);
     }
+  }
 
   private extractContinuationToken(url: string | undefined): string | undefined {
     if (url) {
@@ -194,26 +191,27 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @beta
   */
   public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
-    // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
-    const url = `${this.baseUrl}/${realityDataId}/projects`;
-    const options = getRequestConfig(accessToken, "GET", url, this.apiVersion);
+    try {
+      // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
+      const url = `${this.baseUrl}/${realityDataId}/projects`;
+      const options = getRequestConfig(accessToken, "GET", url, this.apiVersion);
 
-    // execute query
-    return await axios.get(url, options)
-      .then((response: AxiosResponse) => {
-        // Handle response
-        const projectsResponseBody = response.data;
-        const projectsResponse: Project[] = [];
-        projectsResponseBody.projects.forEach((projectValue: any) => {
-          projectsResponse.push(new Project(projectValue));
-        });
-        return projectsResponse;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      }
-    )
+      // execute query
+      const response = await axios.get(url, options);
+
+      const projectsResponseBody = response.data;
+
+      const projectsResponse: Project[] = [];
+
+      projectsResponseBody.projects.forEach((projectValue: any) => {
+        projectsResponse.push(new Project(projectValue));
+      });
+
+      return projectsResponse;
+
+    } catch (error) {
+      return this.handleError(error);
+    }
   }
 
   /**
@@ -224,45 +222,43 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @beta
    */
   public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
-    const url = this.baseUrl;
-    const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+    try {
+      const url = this.baseUrl;
+      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
 
-    // creation payload
+      // creation payload
 
-    const realityDataToCreate = {
-      displayName: iTwinRealityData.displayName,
-      classification: iTwinRealityData.classification,
-      type: iTwinRealityData.type,
-      dataset: iTwinRealityData.dataset,
-      group: iTwinRealityData.group,
-      description: iTwinRealityData.description,
-      rootDocument: iTwinRealityData.rootDocument,
-      acquisition: iTwinRealityData.acquisition,
-      authoring: iTwinRealityData.authoring,
-      extent: iTwinRealityData.extent,
-      accessControl: iTwinRealityData.accessControl,
-    };
-
-    const createPayload = iTwinId ?
-      {
-        projectId: iTwinId,
-        realityData: realityDataToCreate,
-      } :
-      {
-        realityData: realityDataToCreate,
+      const realityDataToCreate = {
+        displayName: iTwinRealityData.displayName,
+        classification: iTwinRealityData.classification,
+        type: iTwinRealityData.type,
+        dataset: iTwinRealityData.dataset,
+        group: iTwinRealityData.group,
+        description: iTwinRealityData.description,
+        rootDocument: iTwinRealityData.rootDocument,
+        acquisition: iTwinRealityData.acquisition,
+        authoring: iTwinRealityData.authoring,
+        extent: iTwinRealityData.extent,
+        accessControl: iTwinRealityData.accessControl,
       };
 
-    return await axios.post(url, createPayload, options)
-      .then((response: AxiosResponse) => {
-        // Handle response
-        iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
-        return iTwinRealityData;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      }
-    )
+      const createPayload = iTwinId ?
+        {
+          projectId: iTwinId,
+          realityData: realityDataToCreate,
+        } :
+        {
+          realityData: realityDataToCreate,
+        };
+
+      const response = await axios.post(url, createPayload, options);
+
+      iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
+    } catch (error) {
+      return this.handleError(error);
+    }
+
+    return iTwinRealityData;
   }
 
   /**
@@ -273,45 +269,44 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @beta
   */
   public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
-    const url = iTwinId ? `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}` : `${this.baseUrl}/${iTwinRealityData.id}`;
-    const options = getRequestConfig(accessToken, "PATCH", url, this.apiVersion);
+    try {
+      const url = iTwinId ? `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}` : `${this.baseUrl}/${iTwinRealityData.id}`;
+      const options = getRequestConfig(accessToken, "PATCH", url, this.apiVersion);
 
-    // payload
+      // payload
 
-    const realityDataToModify = {
-      id: iTwinRealityData.id,
-      displayName: iTwinRealityData.displayName,
-      classification: iTwinRealityData.classification,
-      type: iTwinRealityData.type,
-      dataset: iTwinRealityData.dataset,
-      group: iTwinRealityData.group,
-      description: iTwinRealityData.description,
-      rootDocument: iTwinRealityData.rootDocument,
-      acquisition: iTwinRealityData.acquisition,
-      authoring: iTwinRealityData.authoring,
-      extent: iTwinRealityData.extent,
-      // accessControl: iTwinRealityData.accessControl, this is readonly for the moment
-    };
-
-    const modifyPayload = iTwinId ?
-      {
-        projectId: iTwinId,
-        realityData: realityDataToModify,
-      } :
-      {
-        realityData: realityDataToModify,
+      const realityDataToModify = {
+        id: iTwinRealityData.id,
+        displayName: iTwinRealityData.displayName,
+        classification: iTwinRealityData.classification,
+        type: iTwinRealityData.type,
+        dataset: iTwinRealityData.dataset,
+        group: iTwinRealityData.group,
+        description: iTwinRealityData.description,
+        rootDocument: iTwinRealityData.rootDocument,
+        acquisition: iTwinRealityData.acquisition,
+        authoring: iTwinRealityData.authoring,
+        extent: iTwinRealityData.extent,
+        // accessControl: iTwinRealityData.accessControl, this is readonly for the moment
       };
 
-    return await axios.patch(url, modifyPayload, options)
-      .then((response: AxiosResponse) => {
-        // Handle response
-        iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
-        return iTwinRealityData;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      })
+      const modifyPayload = iTwinId ?
+        {
+          projectId: iTwinId,
+          realityData: realityDataToModify,
+        } :
+        {
+          realityData: realityDataToModify,
+        };
+
+      const response = await axios.patch(url, modifyPayload, options);
+
+      iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
+    } catch (error) {
+      return this.handleError(error);
+    }
+
+    return iTwinRealityData;
   }
 
   /**
@@ -322,19 +317,22 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @beta
    */
   public async deleteRealityData(accessToken: AccessToken, realityDataId: string): Promise<boolean> {
-    const url = `${this.baseUrl}/${realityDataId}`;
-    const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
 
-    return await axios.delete(url, options)
-      .then(() => {
-        // Handle response
-        return true;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      })
-  }
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}`;
+      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+
+      response = await axios.delete(url, options);
+
+    } catch (error) {
+      return this.handleError(error);
+    }
+
+    if (response.status === 204)
+      return true;
+    else return false;
+  }  
 
   /**
    * Associates a RealityData to an iTwin
@@ -345,18 +343,20 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @beta
    */
   public async associateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
-    const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
-    const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
 
-    return await axios.put(url, undefined, options)
-      .then(() => {
-        // Handle response
-        return true;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      })
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
+      const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
+
+      response = await axios.put(url, undefined, options);
+
+    } catch (error) {
+      return this.handleError(error);
+    }
+    if (response.status === 201)
+      return true;
+    else return false;
   }
 
   /**
@@ -368,18 +368,45 @@ export class RealityDataAccessClient implements RealityDataAccess {
   * @beta
   */
   public async dissociateRealityData(accessToken: AccessToken, iTwinId: string, realityDataId: string): Promise<boolean> {
-    const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
-    const options = getRequestConfig(accessToken, "DELETE", url, this.apiVersion);
 
-    return await axios.delete(url, options)
-      .then(() => {
-        // Handle response
-        return true;
-      })
-      .catch((error: AxiosError) => {
-        // throw ResponseError with status and message from APIM
-        throw new ResponseError(error.response!.status, error.response?.data?.error?.message);
-      })
+    let response: AxiosResponse;
+    try {
+      const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
+      const options = getRequestConfig(accessToken, "DELETE", url, this.apiVersion);
+
+      response = await axios.delete(url, options);
+
+    } catch (error) {
+      return this.handleError(error);
+    }
+    if (response.status === 204)
+      return true;
+    else return false;
+  }
+
+  /**
+  * Handle errors thrown. 
+  * Handled errors can be of AxiosError type or BentleyError.
+  * @beta
+  */
+  private handleError(error: any): any {
+    // Default error
+    let status = 422;
+    let message = "Unknown error. Please ensure that the request is valid.";
+
+    if (axios.isAxiosError(error)) {
+      let axiosResponse = (error as AxiosError).response!;
+      status = axiosResponse.status;
+      message = axiosResponse.data?.error?.message;
+    }
+    else {
+      let bentleyError = error as BentleyError;
+      if (bentleyError !== undefined) {
+        status = bentleyError.errorNumber;
+        message = bentleyError.message;
+      }
+    }
+    return Promise.reject(new BentleyError(status, message));
   }
 
 }
