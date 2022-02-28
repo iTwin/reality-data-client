@@ -427,7 +427,6 @@ describe("RealityServicesClient Errors (#integration)", () => {
 
   let iTwinId: GuidString;
 
-  const tilesId: string = "f2065aea-5dcd-49e2-9077-e082dde506bc";
   const inexistantTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
 
   let accessToken: AccessToken;
@@ -443,7 +442,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
     try {
-      let realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, rdId);
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, rdId);
     } catch (errorResponse: any) {
       chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
       return;
@@ -454,7 +453,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when Reality Data ID does not exist.", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      let realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, inexistantTilesId);
     } catch (errorResponse: any) {
       chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
       return;
@@ -467,7 +466,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
     try {
-      const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, invalidITwinId, undefined);
+      await realityDataAccessClient.getRealityDatas(accessToken, invalidITwinId, undefined);
     } catch (errorResponse: any) {
       chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
       return;
@@ -478,11 +477,11 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 422 error when the top parameter is > 500 (getting all reality data in a iTwin)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     const realityDataQueryCriteria: RealityDataQueryCriteria = {
-      top: 501
+      top: 501,
     };
 
     try {
-      const realityDataResponse = await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
+      await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
     } catch (errorResponse: any) {
       chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
       return;
@@ -529,7 +528,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (deleting a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.deleteRealityData(accessToken, inexistantTilesId)
+      await realityDataAccessClient.deleteRealityData(accessToken, inexistantTilesId);
     } catch (errorResponse: any) {
       chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
       return;

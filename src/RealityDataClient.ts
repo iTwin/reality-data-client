@@ -7,12 +7,11 @@
  * @module RealityDataClient
  */
 
-import type { AccessToken } from "@itwin/core-bentley";
+import { AccessToken, BentleyError } from "@itwin/core-bentley";
 
 import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
-import { BentleyError } from "@itwin/core-bentley";
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { Project } from "./Projects";
 
 import { ITwinRealityData } from "./RealityData";
@@ -156,7 +155,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
         }
       }
 
-      const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)))
+      const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       // Axios throws on 4XX and 5XX; we make sure the response here is 200
       if (response.status !== 200)
@@ -338,7 +337,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
     if (response.status === 204)
       return true;
     else return false;
-  }  
+  }
 
   /**
    * Associates a RealityData to an iTwin
@@ -391,7 +390,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-  * Handle errors thrown. 
+  * Handle errors thrown.
   * Handled errors can be of AxiosError type or BentleyError.
   * @beta
   */
@@ -401,12 +400,11 @@ export class RealityDataAccessClient implements RealityDataAccess {
     let message = "Unknown error. Please ensure that the request is valid.";
 
     if (axios.isAxiosError(error)) {
-      let axiosResponse = (error as AxiosError).response!;
+      const axiosResponse = error.response!;
       status = axiosResponse.status;
       message = axiosResponse.data?.error?.message;
-    }
-    else {
-      let bentleyError = error as BentleyError;
+    } else {
+      const bentleyError = error as BentleyError;
       if (bentleyError !== undefined) {
         status = bentleyError.errorNumber;
         message = bentleyError.message;
