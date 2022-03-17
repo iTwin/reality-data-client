@@ -4,8 +4,8 @@
 *--------------------------------------------------------------------------------------------*/
 
 import type { RealityData } from "@itwin/core-common";
-import type { AccessToken, GuidString } from "@itwin/core-bentley";
-import type { RealityDataAccessClient } from "./RealityDataClient";
+import { AccessToken, BentleyError, GuidString } from "@itwin/core-bentley";
+import { RealityDataAccessClient } from "./RealityDataClient";
 
 import { getRequestConfig } from "./RequestOptions";
 import axios from "axios";
@@ -159,7 +159,7 @@ export class ITwinRealityData implements RealityData {
   private async getContainerUrl(accessToken: AccessToken, writeAccess: boolean = false): Promise<URL> {
 
     if (!this.client)
-      throw Error("RealityDataAccessClient is not set.");
+      throw new BentleyError(422, `Invalid container request (RealityDataAccessClient is not set).`);
 
     const access = (writeAccess === true ? "Write" : "Read");
 
@@ -177,7 +177,7 @@ export class ITwinRealityData implements RealityData {
         const response = await axios.get(url, requestOptions);
 
         if (!response.data.container) {
-          throw new Error("API returned an unexpected response.");
+          throw new BentleyError(422, `Invalid container request (API returned an unexpected response).`);
         }
 
         // update cache
@@ -190,7 +190,7 @@ export class ITwinRealityData implements RealityData {
       }
       return this._containerCache.getCache(access)!.url;
     } catch (errorResponse: any) {
-      throw Error(`API request error: ${JSON.stringify(errorResponse)}`);
+      throw new BentleyError(422, `Invalid container request.`);
     }
   }
 }

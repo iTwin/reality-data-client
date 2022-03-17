@@ -425,3 +425,139 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(await realityDataAccessClient.deleteRealityData(accessToken, realityDataAdded.id));
   });
 });
+
+describe("RealityServicesClient Errors (#integration)", () => {
+
+  let iTwinId: GuidString;
+
+  const inexistantTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
+
+  let accessToken: AccessToken;
+
+  before(async () => {
+    accessToken = await TestConfig.getAccessToken();
+    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    chai.assert.isDefined(iTwinId);
+  });
+
+  it("should throw a 422 error when Reality Data ID is not a valid Guid", async () => {
+    const rdId = "f2065aea-5dcd-49e2-9077-xxxxxxxxxxxx";
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    try {
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, rdId);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "getRealityData should throw an error.");
+  });
+
+  it("should throw a 404 error when Reality Data ID does not exist.", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    try {
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, inexistantTilesId);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "getRealityData should throw an error.");
+  });
+
+  it("should throw a 422 error when the iTwinId is invalid (getting all reality data in a iTwin)", async () => {
+    const invalidITwinId = "xxxxxxxx-cc9f-4de9-af87-f834002ca19e";
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    try {
+      await realityDataAccessClient.getRealityDatas(accessToken, invalidITwinId, undefined);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "getRealityDatas should throw an error.");
+  });
+
+  it("should throw a 422 error when the top parameter is > 500 (getting all reality data in a iTwin)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    const realityDataQueryCriteria: RealityDataQueryCriteria = {
+      top: 501,
+    };
+
+    try {
+      await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "getRealityDatas should throw an error when top parameter is > 500.");
+  });
+
+  it("should throw a 422 error when required properties are missing (creating a reality data)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    // displayName is missing
+    const realityData = new ITwinRealityData(realityDataAccessClient);
+    realityData.dataset = "Test Dataset for iTwinjs";
+    realityData.description = "Dummy description for a test reality data";
+    realityData.type = "Undefined";
+    realityData.classification = "Undefined";
+    try {
+      await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "createRealityData should throw an error.");
+  });
+
+  it("should throw a 404 error when reality data id does not exist (modifying a reality data)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    const realityData = new ITwinRealityData(realityDataAccessClient);
+    realityData.id = inexistantTilesId;
+    realityData.displayName = "MODIFIED iTwinjs RealityData";
+    realityData.dataset = "Test Dataset for iTwinjs";
+    realityData.description = "Dummy description for a test reality data";
+    realityData.type = "Undefined";
+    realityData.classification = "Undefined";
+    try {
+      await realityDataAccessClient.modifyRealityData(accessToken, iTwinId, realityData);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "createRealityData should throw an error.");
+  });
+
+  it("should throw a 404 error when reality data id does not exist (deleting a reality data)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    try {
+      await realityDataAccessClient.deleteRealityData(accessToken, inexistantTilesId);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "deleteRealityData should throw an error.");
+  });
+
+  it("should throw a 404 error when reality data id does not exist (associate a reality data)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    try {
+      await realityDataAccessClient.associateRealityData(accessToken, iTwinId, inexistantTilesId);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "associateRealityData should throw an error.");
+  });
+
+  it("should throw a 404 error when reality data id does not exist (dissociate a reality data)", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+    try {
+      await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId, inexistantTilesId);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      return;
+    }
+    chai.assert(false, "dissociateRealityData should throw an error.");
+  });
+});
