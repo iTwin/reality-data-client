@@ -5,11 +5,14 @@
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import { AccessToken, GuidString, Logger, LogLevel } from "@itwin/core-bentley";
-import { CartographicRange, RealityData, RealityDataAccess } from "@itwin/core-common";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { Logger, LogLevel } from "@itwin/core-bentley";
+import type { RealityData, RealityDataAccess } from "@itwin/core-common";
+import { CartographicRange } from "@itwin/core-common";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 
-import { ApiVersion, RealityDataAccessClient, RealityDataClientOptions, RealityDataQueryCriteria } from "../../RealityDataClient";
+import type { RealityDataClientOptions, RealityDataQueryCriteria } from "../../RealityDataClient";
+import { ApiVersion, RealityDataAccessClient } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 import { ITwinRealityData } from "../../RealityData";
 

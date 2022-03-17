@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { GuidString } from "@itwin/core-bentley";
+import type { GuidString } from "@itwin/core-bentley";
 
 /**
  * Contains information on a project that is associated to a RealityData. More details about a project can be requested from the Projects API.

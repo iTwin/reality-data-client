@@ -7,11 +7,13 @@
  * @module RealityDataClient
  */
 
-import { AccessToken, BentleyError } from "@itwin/core-bentley";
+import type { AccessToken} from "@itwin/core-bentley";
+import { BentleyError } from "@itwin/core-bentley";
 
-import { CartographicRange, RealityDataAccess } from "@itwin/core-common";
+import type { CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
-import axios, { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
+import axios from "axios";
 import { Project } from "./Projects";
 
 import { ITwinRealityData } from "./RealityData";
