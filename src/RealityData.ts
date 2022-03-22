@@ -138,11 +138,12 @@ export class ITwinRealityData implements RealityData {
      * Gets string url to fetch blob data from. Access is read-only.
      * @param accessToken The client request context.
      * @param blobPath name or path of tile
+     * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
      * @returns string url for blob data
      * @beta
      */
-  public async getBlobUrl(accessToken: AccessToken, blobPath: string): Promise<URL> {
-    const url = await this.getContainerUrl(accessToken);
+  public async getBlobUrl(accessToken: AccessToken, blobPath: string, writeAccess: boolean = false): Promise<URL> {
+    const url = await this.getContainerUrl(accessToken, writeAccess);
     if (blobPath === undefined)
       return url;
 
