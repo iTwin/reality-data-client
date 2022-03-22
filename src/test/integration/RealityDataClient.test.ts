@@ -133,6 +133,11 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const url2: URL = await realityData.getBlobUrl(fakeAccessToken, "test");
     chai.assert(url.href === url2.href);
 
+    // cache test, wait 1 second and request the same reality data with WRITE access, url should be different.
+    await delay(1000);
+    const url2_write: URL = await realityData.getBlobUrl(accessToken, "test", true);
+    chai.assert(url2.href !== url2_write.href);
+
     // test without projectId
     await delay(1000);
 
@@ -140,7 +145,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const url3: URL = await realityData2.getBlobUrl(accessToken, "test");
     chai.assert(url3);
     chai.assert(url3.toString().includes("test"));
-
   });
 
   it("should be able to retrieve reality data properties for every reality data associated with iTwin", async () => {
