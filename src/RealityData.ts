@@ -4,8 +4,9 @@
 *--------------------------------------------------------------------------------------------*/
 
 import type { RealityData } from "@itwin/core-common";
-import { AccessToken, BentleyError, GuidString } from "@itwin/core-bentley";
-import { RealityDataAccessClient } from "./RealityDataClient";
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import { BentleyError } from "@itwin/core-bentley";
+import type { RealityDataAccessClient } from "./RealityDataClient";
 
 import { getRequestConfig } from "./RequestOptions";
 import axios from "axios";
