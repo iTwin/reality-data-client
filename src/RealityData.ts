@@ -138,7 +138,7 @@ export class ITwinRealityData implements RealityData {
      * Gets string url to fetch blob data from. Access is read-only.
      * @param accessToken The client request context.
      * @param blobPath name or path of tile
-     * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access.
+     * @param writeAccess Optional boolean indicating if write access is requested. Default is false for read-only access. The realitydata:modify scope is required to grant the "write" access.
      * @returns string url for blob data
      * @beta
      */
