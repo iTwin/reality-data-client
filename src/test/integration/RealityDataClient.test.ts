@@ -364,7 +364,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.description === realityData.description);
     chai.assert(realityDataAdded.rootDocument === realityData.rootDocument);
     chai.assert(realityDataAdded.classification === realityData.classification);
-    chai.assert(realityDataAdded.type === realityData.type);
+    chai.assert(realityDataAdded.type?.toLowerCase() === realityData.type.toLowerCase());
 
     chai.assert(realityDataAdded.acquisition!.acquirer === realityData.acquisition.acquirer);
     chai.assert(realityDataAdded.acquisition!.startDateTime.getTime() === realityData.acquisition.startDateTime.getTime());
