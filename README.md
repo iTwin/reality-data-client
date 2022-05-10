@@ -14,7 +14,7 @@ Visit the [iTwin developer portal](https://developer.bentley.com/apis/reality-da
 
 ## Requirements
 
-A registered application in the iTwin Platform is needed for using the Reality Data Client. Documentation for registering an application can be found [here.](https://developer.bentley.com/tutorials/register-and-modify-application/). Make sure that your application is associated with **Digital Twin Management** and **Visualization** and has `realitydata:read realitydata:modify` scopes enabled. 
+A registered application in the iTwin Platform is needed for using the Reality Data Client. Documentation for registering an application can be found [here.](https://developer.bentley.com/tutorials/register-and-modify-application/) Make sure that your application is associated with **Digital Twin Management** and **Visualization** and has `realitydata:read realitydata:modify` scopes enabled. 
 
 To use the Reality Data API you will need to have an access to a project. If you don't have one already, contact one of your Organization Administrators or take some time to go through the following tutorial: Create a [Project](https://developer.bentley.com/tutorials/create-and-query-projects-guide).
 
@@ -28,9 +28,9 @@ This client uses the `AccessToken` class from  __@iTwin/core-bentley__ to repres
 
 ### ITwinRealityData
 
-Implements the `RealityData` interface from  __@itwin/core-common__ and represents a single reality data. This class contains properties representing the descriptive data related to a reality data, as well as an access point to the data stored in a blob container. ITwinRealityData are bound to an iTwinId, which is the identifier of a Project. [More information about the Projects API here](https://developer.bentley.com/apis/projects/overview/)
+Implements the `RealityData` interface from  __@itwin/core-common__ and represents a single reality data. This class contains properties representing the descriptive data related to a reality data, as well as an access point to the data stored in a blob container. `ITwinRealityData` are bound to an `iTwinId`, which is the identifier of a Project. [More information about the Projects API here.](https://developer.bentley.com/apis/projects/overview/)
 
-ITwinRealityData implements a `getBlobUrl()` method that returns the location of the reality data's blob content.
+ITwinRealityData implements a `getBlobUrl()` method that returns the location of the reality data's blob content. This resource is also cached, as to limit the amount of API calls and SAS keys keys to generate.
 
 ### RealityDataAccessClient
 
@@ -48,7 +48,7 @@ Implements the `RealityDataAccess` interface from  __@itwin/core-common__ and se
 
 ## Usage example
 
-The example below demonstrates a workflow where one could create a realityData and upload a Cesium3DTiles model to it.
+The example below demonstrates a workflow where one could create a `RealityData` and upload a `Cesium3DTiles` model to it.
 
 ```ts
 
