@@ -57,7 +57,7 @@ export interface RealityDataResponse {
 }
 
 /**
- * Client wrapper to Reality Data Service.
+ * Client wrapper to Reality Data API.
  * An instance of this class is used to extract reality data from the Reality Data API.
  * Most important methods enable to obtain a specific reality data, fetch all reality data associated with an iTwin and
  * all reality data of an iTwin within a provided spatial extent.
@@ -70,7 +70,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   public readonly apiVersion: ApiVersion = ApiVersion.v1;
 
   /**
-   * Creates an instance of RealityDataServicesClient.
+   * Creates an instance of RealityDataAccessClient.
    */
   public constructor(realityDataClientOptions?: RealityDataClientOptions) {
     // runtime config
@@ -385,7 +385,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-  * Dissociates a RealityData to an iTwin
+  * Dissociates a RealityData from an iTwin
   * @param accessToken The client request context.
   * @param iTwinId id of iTwin to dissociate the realityData from.
   * @param realityDataId id of the RealityData.
