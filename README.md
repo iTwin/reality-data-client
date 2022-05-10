@@ -22,7 +22,7 @@ To build and run the Reality Data Client, you will need [Node.js](https://nodejs
 
 ## Authorization
 
-This client uses the `AccessToken` class from  __@iTwin/core-bentley__ to represent the authorization token. The `AccessToken` may be passed into method parameters whenever called.
+This client uses the `AccessToken` class from  __@iTwin/core-bentley__ to represent the authorization token. It may be used as a string. The `AccessToken` may be passed into method parameters whenever called.
 
 ## Key Types and Methods
 
