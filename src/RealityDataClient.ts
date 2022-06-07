@@ -90,13 +90,6 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-   * Returns an accessToken from the authorizationClient in RealityDataClientOptions or an empty string if undefined
-   */
-  public async getAccessToken(): Promise<string> {
-    return this.authorizationClient ? this.authorizationClient.getAccessToken() : "";
-  }
-
-  /**
    * Try to use authorizationClient in RealityDataClientOptions to get the access token
    * otherwise, will return the input token
    * This is a workaround to support different authorization client for the reality data client and iTwin-core.
