@@ -143,13 +143,22 @@ export class ITwinRealityData implements RealityData {
      * @beta
      */
   public async getBlobUrl(accessToken: AccessToken, blobPath: string, writeAccess: boolean = false): Promise<URL> {
-    const url = await this.getContainerUrl(accessToken, writeAccess);
+    const accessTokenResolved = await this.resolveAccessToken(accessToken);
+    const url = await this.getContainerUrl(accessTokenResolved, writeAccess);
     if (blobPath === undefined)
       return url;
 
     const host = `${url.origin + url.pathname}/`;
     const query = url.search;
     return new URL(`${host}${blobPath}${query}`);
+  }
+  /**
+   * Try to use authorizationClient in RealityDataClientOptions to get the access token
+   * otherwise, will return the input token
+   * This is a workaround to support different authorization client for the reality data client and iTwin-core.
+   */
+  private async resolveAccessToken(accessToken: AccessToken): Promise<string> {
+    return this.client?.authorizationClient ? this.client.authorizationClient.getAccessToken() : accessToken;
   }
 
   /**
@@ -164,6 +173,7 @@ export class ITwinRealityData implements RealityData {
       throw new BentleyError(422, `Invalid container request (RealityDataAccessClient is not set).`);
 
     const access = (writeAccess === true ? "Write" : "Read");
+    const accessTokenResolved = await this.resolveAccessToken(accessToken);
 
     try {
 
@@ -174,7 +184,7 @@ export class ITwinRealityData implements RealityData {
 
         const url = this.iTwinId ? `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&access=${access}`
           : `${this.client.baseUrl}/${this.id}/container/?&access=${access}`;
-        const requestOptions = getRequestConfig(accessToken, "GET", url, this.client.apiVersion);
+        const requestOptions = getRequestConfig(accessTokenResolved, "GET", url, this.client.apiVersion);
 
         const response = await axios.get(url, requestOptions);
 

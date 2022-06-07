@@ -10,7 +10,7 @@
 import type { AccessToken} from "@itwin/core-bentley";
 import { BentleyError } from "@itwin/core-bentley";
 
-import type { CartographicRange, RealityDataAccess } from "@itwin/core-common";
+import type { AuthorizationClient, CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
 import type { AxiosResponse } from "axios";
 import axios from "axios";
@@ -23,6 +23,10 @@ import { getRequestConfig } from "./RequestOptions";
  * @beta
 */
 export interface RealityDataClientOptions {
+  /** The authorization client to use to get access token to Context Share API (authority: https://ims.bentley.com )
+   *  When define it will ignore accessToken from API parameters and will get an access token from this client.
+   */
+  authorizationClient?: AuthorizationClient;
   /** API Version. v1 by default */
   version?: ApiVersion;
   /** API Url. Used to select environment. Defaults to "https://api.bentley.com/realitydata" */
@@ -68,6 +72,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
   public readonly baseUrl: string = "https://api.bentley.com/realitydata";
   public readonly apiVersion: ApiVersion = ApiVersion.v1;
+  public readonly authorizationClient: AuthorizationClient | undefined = undefined;
 
   /**
    * Creates an instance of RealityDataAccessClient.
@@ -79,7 +84,25 @@ export class RealityDataAccessClient implements RealityDataAccess {
         this.apiVersion = realityDataClientOptions.version;
       if (realityDataClientOptions.baseUrl)
         this.baseUrl = realityDataClientOptions.baseUrl;
+      if (realityDataClientOptions.authorizationClient)
+        this.authorizationClient = realityDataClientOptions.authorizationClient;
     }
+  }
+
+  /**
+   * Returns an accessToken from the authorizationClient in RealityDataClientOptions or an empty string if undefined
+   */
+  public async getAccessToken(): Promise<string> {
+    return this.authorizationClient ? this.authorizationClient.getAccessToken() : "";
+  }
+
+  /**
+   * Try to use authorizationClient in RealityDataClientOptions to get the access token
+   * otherwise, will return the input token
+   * This is a workaround to support different authorization client for the reality data client and iTwin-core.
+   */
+  private async resolveAccessToken(accessToken: AccessToken): Promise<string> {
+    return this.authorizationClient ? this.authorizationClient.getAccessToken() : accessToken;
   }
 
   /**
@@ -111,9 +134,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
    * @beta
    */
   public async getRealityData(accessToken: AccessToken, iTwinId: string | undefined, realityDataId: string): Promise<ITwinRealityData> {
+    const accessTokenResolved = await this.resolveAccessToken(accessToken);
     const url = `${await this.getRealityDataUrl(iTwinId, realityDataId)}`;
     try {
-      const realityDataResponse = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion));
+      const realityDataResponse = await axios.get(url, getRequestConfig(accessTokenResolved, "GET", url, this.apiVersion));
 
       // Axios throws on 4XX and 5XX; we make sure the response here is 200
       if (realityDataResponse.status !== 200)
@@ -139,6 +163,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
   */
   public async getRealityDatas(accessToken: AccessToken, iTwinId: string | undefined, criteria: RealityDataQueryCriteria | undefined): Promise<RealityDataResponse> {
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       // {api-url}/realitydata/[?projectId][&continuationToken][&$top][&extent]
       let url = iTwinId ? `${this.baseUrl}?projectId=${iTwinId}` : this.baseUrl;
 
@@ -162,7 +187,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
         }
       }
 
-      const response = await axios.get(url, getRequestConfig(accessToken, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
+      const response = await axios.get(url, getRequestConfig(accessTokenResolved, "GET", url, this.apiVersion, (criteria?.getFullRepresentation === true ? true : false)));
 
       // Axios throws on 4XX and 5XX; we make sure the response here is 200
       if (response.status !== 200)
@@ -205,9 +230,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
   */
   public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       // GET https://{{hostname-apim}}/realitydata/{{realityDataId}}/projects
       const url = `${this.baseUrl}/${realityDataId}/projects`;
-      const options = getRequestConfig(accessToken, "GET", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "GET", url, this.apiVersion);
 
       // execute query
       const response = await axios.get(url, options);
@@ -239,8 +265,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
    */
   public async createRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = this.baseUrl;
-      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "POST", url, this.apiVersion);
 
       // creation payload
 
@@ -289,8 +316,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
   */
   public async modifyRealityData(accessToken: AccessToken, iTwinId: string | undefined, iTwinRealityData: ITwinRealityData): Promise<ITwinRealityData> {
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = iTwinId ? `${this.baseUrl}/${iTwinRealityData.id}?projectId=${iTwinId}` : `${this.baseUrl}/${iTwinRealityData.id}`;
-      const options = getRequestConfig(accessToken, "PATCH", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "PATCH", url, this.apiVersion);
 
       // payload
 
@@ -342,8 +370,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
     let response: AxiosResponse;
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = `${this.baseUrl}/${realityDataId}`;
-      const options = getRequestConfig(accessToken, "POST", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "POST", url, this.apiVersion);
 
       response = await axios.delete(url, options);
 
@@ -371,8 +400,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
     let response: AxiosResponse;
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
-      const options = getRequestConfig(accessToken, "PUT", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "PUT", url, this.apiVersion);
 
       response = await axios.put(url, undefined, options);
 
@@ -399,8 +429,9 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
     let response: AxiosResponse;
     try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = `${this.baseUrl}/${realityDataId}/projects/${iTwinId}`;
-      const options = getRequestConfig(accessToken, "DELETE", url, this.apiVersion);
+      const options = getRequestConfig(accessTokenResolved, "DELETE", url, this.apiVersion);
 
       response = await axios.delete(url, options);
 
