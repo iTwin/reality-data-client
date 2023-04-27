@@ -311,7 +311,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.startDateTime));
     chai.assert(realityDataResponse.acquisition?.startDateTime.getTime() === new Date("2021-05-12T20:03:12Z").getTime());
     chai.assert(isInstanceOfDate(realityDataResponse.acquisition?.endDateTime));
-    chai.assert(realityDataResponse.acquisition?.endDateTime!.getTime() === new Date("2021-05-15T05:07:18Z").getTime());
+    chai.assert(realityDataResponse.acquisition?.endDateTime.getTime() === new Date("2021-05-15T05:07:18Z").getTime());
     chai.assert(realityDataResponse.acquisition?.acquirer === "Data Acquisition Inc.");
     chai.assert(realityDataResponse.extent != null);
     chai.assert(realityDataResponse.extent?.southWest.latitude === 50.1171);

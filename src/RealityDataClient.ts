@@ -375,7 +375,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
     if (response.status === 204)
       return true;
-    else return false;
+    else
+      return false;
   }
 
   /**
@@ -404,7 +405,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
     }
     if (response.status === 201)
       return true;
-    else return false;
+    else
+      return false;
   }
 
   /**
@@ -433,7 +435,8 @@ export class RealityDataAccessClient implements RealityDataAccess {
     }
     if (response.status === 204)
       return true;
-    else return false;
+    else
+      return false;
   }
 
   /**
