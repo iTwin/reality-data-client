@@ -13,7 +13,7 @@ To build, run and test locally, this checklist below can help solve most issues.
 
 Example commands below to install, clean, build and test :
 - `npm i`
-- `npm run update` and/or `npm run update --save-dev`
+- `npm update` and/or `npm update --save-dev`
 - `npm run clean`
 - `npm run build`
 - `npm run test:integration` to run integration tests locally.

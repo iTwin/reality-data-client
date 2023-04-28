@@ -51,19 +51,18 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    iTwinId = TestConfig.integrationTestsItwinId;
     chai.assert.isDefined(iTwinId);
   });
 
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
       const realityDataId = "f2065aea-5dcd-49e2-9077-e082dde506bc";
-      const projectId = "614a3c70-cc9f-4de9-af87-f834002ca19e";
       const realityDataAccessClient = new RealityDataAccessClient();
 
       // test with projectId
-      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
-      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
+      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(iTwinId, realityDataId);
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${iTwinId}`;
 
       chai.assert(realityDataUrl === expectedUrl);
 
@@ -113,12 +112,12 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityData);
     // get all projects information
-    const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
+    const projects = await realityDataAccessClient.getRealityDataITwins(accessToken, realityData.id);
     chai.assert(projects);
     chai.assert(projects.length === 2);
     projects.forEach((value) => {
       chai.assert(value.id);
-      chai.assert(value.projectDetailsLink);
+      chai.assert(value.iTwinDetailsLink);
     });
 
   });
@@ -441,7 +440,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    iTwinId = TestConfig.integrationTestsItwinId;
     chai.assert.isDefined(iTwinId);
   });
 
