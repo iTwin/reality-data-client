@@ -112,12 +112,12 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityData);
     // get all projects information
-    const projects = await realityDataAccessClient.getRealityDataITwins(accessToken, realityData.id);
+    const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
     chai.assert(projects);
     chai.assert(projects.length === 2);
     projects.forEach((value) => {
       chai.assert(value.id);
-      chai.assert(value.iTwinDetailsLink);
+      chai.assert(value.projectDetailsLink);
     });
 
   });
