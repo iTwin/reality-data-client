@@ -51,23 +51,22 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    iTwinId = TestConfig.integrationTestsItwinId;
     chai.assert.isDefined(iTwinId);
   });
 
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
       const realityDataId = "f2065aea-5dcd-49e2-9077-e082dde506bc";
-      const projectId = "614a3c70-cc9f-4de9-af87-f834002ca19e";
       const realityDataAccessClient = new RealityDataAccessClient();
 
-      // test with projectId
-      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(projectId, realityDataId);
-      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${projectId}`;
+      // test with iTwinId
+      let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(iTwinId, realityDataId);
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${iTwinId}`;
 
       chai.assert(realityDataUrl === expectedUrl);
 
-      // test without projectId
+      // test without iTwinId
       realityDataUrl = await realityDataAccessClient.getRealityDataUrl(undefined, realityDataId);
       chai.assert(realityDataUrl === `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc`);
 
@@ -83,7 +82,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
       chai.assert(realityData);
       chai.assert(realityData.id === tilesId);
 
-      // test without projectId
+      // test without iTwinId
       await delay(1000);
       realityData = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
       chai.assert(realityData);
@@ -141,7 +140,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const url2_write: URL = await realityData.getBlobUrl(accessToken, "test", true);
     chai.assert(url2.href !== url2_write.href);
 
-    // test without projectId
+    // test without iTwinId
     await delay(1000);
 
     const realityData2 = await realityDataAccessClient.getRealityData(accessToken, undefined, tilesId);
@@ -353,7 +352,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
         longitude: 2.1,
       },
     };
-    // realityData.accessControl = "Project";
+
     realityData.authoring = false;
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -419,7 +418,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     realityData.classification = "Undefined";
     realityData.type = "Undefined";
 
-    // current test user belongs to no organization and needs a project to create realityData. However, the modify without iTwinId can be tested.
+    // current test user belongs to no organization and needs a iTwin to create realityData. However, the modify without iTwinId can be tested.
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
 
     realityDataAdded.displayName = "MODIFIED iTwinjs RealityData Client CRUD test without iTwinId";
@@ -441,7 +440,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
 
   before(async () => {
     accessToken = await TestConfig.getAccessToken();
-    iTwinId = (await TestConfig.getProjectByName(accessToken, TestConfig.projectName)).id;
+    iTwinId = TestConfig.integrationTestsItwinId;
     chai.assert.isDefined(iTwinId);
   });
 
