@@ -18,7 +18,7 @@ A registered application in the iTwin Platform is needed for using the Reality D
 
 To use the Reality Data API you will need to have an access to a project. If you don't have one already, contact one of your Organization Administrators or take some time to go through the following tutorial: Create a [Project](https://developer.bentley.com/tutorials/create-and-query-projects-guide).
 
-To build and run the Reality Data Client, you will need [Node.js](https://nodejs.org/en/) v14 (must be greater than 14.17.x).
+To build and run the Reality Data Client, you will need [Node.js](https://nodejs.org/en/) v18 (must be greater than 18.12.x).
 
 ## Authorization
 
