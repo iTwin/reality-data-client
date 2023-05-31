@@ -5,17 +5,10 @@ on: workflow_dispatch
 jobs:
   publish:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.IMJS_ADMIN_GH_TOKEN }}
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
+    steps:
+      - name: CI
+        uses: ci.yml
 
       - name: Configure git
         run: |
