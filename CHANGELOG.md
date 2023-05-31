@@ -1,4 +1,16 @@
-# Changelog
+# Change Log - @itwin/reality-data-client
+
+This log was last generated on Wed, 31 May 2023 21:24:48 GMT and should not be manually modified.
+
+<!-- Start content -->
+
+## 1.0.0
+
+Wed, 31 May 2023 21:24:48 GMT
+
+### Major changes
+
+- 1.0 release of iTwin/reality-data-client (aruniverse@users.noreply.github.com)
 
 ## 0.9.0 (2022-06-07)
 
