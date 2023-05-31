@@ -1,7 +1,0 @@
-{
-  "type": "major",
-  "comment": "1.0 release of iTwin/reality-data-client",
-  "packageName": "@itwin/reality-data-client",
-  "email": "aruniverse@users.noreply.github.com",
-  "dependentChangeType": "patch"
-}
