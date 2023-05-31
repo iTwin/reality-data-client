@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: CI
-        uses: ./.github/workflows/ci.yaml
+        uses: itwin/reality-data-client/.github/workflows/ci.yaml@master
 
       - name: Configure git
         run: |
