@@ -1,0 +1,20 @@
+{
+  "name": "@itwin/reality-data-client",
+  "entries": [
+    {
+      "date": "Wed, 31 May 2023 21:24:48 GMT",
+      "tag": "@itwin/reality-data-client_v1.0.0",
+      "version": "1.0.0",
+      "comments": {
+        "major": [
+          {
+            "author": "aruniverse@users.noreply.github.com",
+            "package": "@itwin/reality-data-client",
+            "commit": "56c052e89c57a3862caf1c38dedef018792fee17",
+            "comment": "1.0 release of iTwin/reality-data-client"
+          }
+        ]
+      }
+    }
+  ]
+}
