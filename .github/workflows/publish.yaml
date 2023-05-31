@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   ci:
-    uses: itwin/reality-data-client/.github/workflows/ci.yaml@arun/reuse-pipeline
+    uses: itwin/reality-data-client/.github/workflows/ci.yaml@arun/master
     secrets: inherit
 
   publish:
