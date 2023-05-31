@@ -1,12 +1,22 @@
 {
   "name": "@itwin/reality-data-client",
   "version": "1.0.0",
-  "description": "Reality Data Client for the iTwin platform",
+  "description": "HTTP Client for the iTwin Platform Reality Data APIs",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
   "typings": "lib/cjs/reality-data-client",
-  "imodeljsSharedLibrary": true,
   "license": "MIT",
+  "keywords": [
+    "Bentley",
+    "iTwin",
+    "BIM",
+    "iModel",
+    "Reality Data Client"
+  ],
+  "author": {
+    "name": "Bentley Systems, Inc.",
+    "url": "http://www.bentley.com"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/iTwin/reality-data-client"
@@ -26,20 +36,12 @@
     "test:integration": "npm run build && npm run -s webpackTests && npm run -s test:integration:chrome",
     "test:integration:chrome": "certa -r chrome --grep \"#integration\"",
     "test:integration:electron": "certa -r electron --grep \"#integration\"",
-    "cover": "",
-    "start:esm": "node ./lib/esm/index.js",
-    "start:cjs": "node ./lib/cjs/index.js"
-  },
-  "keywords": [
-    "Bentley",
-    "iTwin",
-    "BIM",
-    "iModel",
-    "Reality Data Client"
-  ],
-  "author": {
-    "name": "Bentley Systems, Inc.",
-    "url": "http://www.bentley.com"
+    "change": "beachball change",
+    "check": "beachball check",
+    "version-bump": "beachball bump",
+    "publish-packages": "beachball publish",
+    "version-bump-dev": "beachball bump --config beachball.config.dev.js --keep-change-files",
+    "publish-packages-dev": "beachball publish --config beachball.config.dev.js --keep-change-files"
   },
   "dependencies": {
     "@itwin/core-geometry": "^4.0.0",
@@ -55,6 +57,7 @@
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.1.0",
+    "beachball": "^2.31.12",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.0.3",
