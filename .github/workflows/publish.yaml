@@ -3,9 +3,10 @@ name: Publish itwin/reality-data-client to NPM
 on: workflow_dispatch
 
 jobs:
-  publish:
+  ci:
     uses: itwin/reality-data-client/.github/workflows/ci.yaml@arun/reuse-pipeline
 
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
