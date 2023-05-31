@@ -24,6 +24,6 @@ jobs:
 
       - name: Publish packages
         run: |
-          pnpm publish-packages -y --branch ${{ github.ref_name }} --message "Version bump [skip actions]"
+          npm run publish-packages -y --branch ${{ github.ref_name }} --message "Version bump [skip actions]"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_PUBLISH_ITWIN }}
