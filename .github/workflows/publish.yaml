@@ -5,6 +5,7 @@ on: workflow_dispatch
 jobs:
   ci:
     uses: itwin/reality-data-client/.github/workflows/ci.yaml@arun/reuse-pipeline
+    secrets: inherit
 
   publish:
     runs-on: ubuntu-latest
