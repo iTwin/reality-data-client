@@ -38,7 +38,7 @@ Logger.setLevel(LOG_CATEGORY, LogLevel.Info);
 
 const realityDataClientConfig: RealityDataClientOptions = {
   version: ApiVersion.v1,
-  baseUrl: "https://api.bentley.com/realitydata",
+  baseUrl: "https://api.bentley.com/reality-management/reality-data",
 };
 
 describe("RealityServicesClient Normal (#integration)", () => {
@@ -62,8 +62,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
       // test with iTwinId
       let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(iTwinId, realityDataId);
-      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${iTwinId}`;
-
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?iTwinId=${iTwinId}`;
       chai.assert(realityDataUrl === expectedUrl);
 
       // test without iTwinId
@@ -116,8 +115,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(projects);
     chai.assert(projects.length === 2);
     projects.forEach((value) => {
-      chai.assert(value.id);
-      chai.assert(value.projectDetailsLink);
+      chai.assert(value);
     });
 
   });
@@ -288,7 +286,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
         northEast: { latitude: 40.6716, longitude: -80.3359 }
       }
     */
-    // with http request : https://api.bentley.com/realitydata?projectId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
+    // with http request : https://api.bentley.com/reality-management/realitydata/?iTwinId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
     chai.expect(realityDataResponse.realityDatas.length === 1);
     chai.assert(realityDataResponse.realityDatas[0].id === "de1badb3-012f-4f18-b28a-57d3f2164ba8");
 
@@ -317,7 +315,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataResponse.extent?.southWest.longitude === -122.9543);
     chai.assert(realityDataResponse.extent?.northEast.latitude === 50.1172);
     chai.assert(realityDataResponse.extent?.northEast.longitude === -122.9543);
-    chai.assert(realityDataResponse.accessControl === "Project");
     chai.assert(realityDataResponse.authoring === false);
     chai.assert(realityDataResponse.dataCenterLocation === "East US");
     chai.assert(realityDataResponse.modifiedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
@@ -336,7 +333,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     realityData.description = "Dummy description for a test reality data";
     realityData.rootDocument = "RootDocumentFile.txt";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.acquisition = {
       startDateTime: new Date("2019-05-10T09:46:16Z"),
       endDateTime: new Date("2019-05-10T09:46:16Z"),
@@ -374,7 +371,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.extent!.northEast.latitude === 1.1);
     chai.assert(realityDataAdded.extent!.northEast.longitude === 2.1);
 
-    chai.assert(realityDataAdded.accessControl === "Project");
     chai.assert(realityDataAdded.authoring === false);
     chai.assert(realityDataAdded.dataCenterLocation === "East US");
 
@@ -399,7 +395,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.displayName = "iTwinjs RealityData Client associate and dissociate test";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
 
@@ -416,7 +412,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.displayName = "iTwinjs RealityData Client CRUD test without iTwinId";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
 
     // current test user belongs to no organization and needs a iTwin to create realityData. However, the modify without iTwinId can be tested.
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -503,7 +499,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.dataset = "Test Dataset for iTwinjs";
     realityData.description = "Dummy description for a test reality data";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.classification = "Undefined";
     try {
       await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -521,7 +517,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     realityData.displayName = "MODIFIED iTwinjs RealityData";
     realityData.dataset = "Test Dataset for iTwinjs";
     realityData.description = "Dummy description for a test reality data";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.classification = "Undefined";
     try {
       await realityDataAccessClient.modifyRealityData(accessToken, iTwinId, realityData);

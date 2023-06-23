@@ -82,7 +82,7 @@ export class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
-  public accessControl?: string;
+  public accessControl?: string; // DEPRECATED: not used in Reality Management API
   public modifiedDateTime?: Date;
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
@@ -181,20 +181,23 @@ export class ITwinRealityData implements RealityData {
       const blobUrlRequiresRefresh = !containerCache?.timeStamp || (Date.now() - containerCache?.timeStamp.getTime()) > 3000000; // 3 million milliseconds or 50 minutes
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
+        
+        const url = new URL(`${this.client.baseUrl}/${this.id}/${ writeAccess === true ? "writeAccess" : "readAccess"}`);
 
-        const url = this.iTwinId ? `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&access=${access}`
-          : `${this.client.baseUrl}/${this.id}/container/?&access=${access}`;
-        const requestOptions = getRequestConfig(accessTokenResolved, "GET", url, this.client.apiVersion);
+        if(this.iTwinId)
+          url.searchParams.append("iTwinId", this.iTwinId);
 
-        const response = await axios.get(url, requestOptions);
+        const requestOptions = getRequestConfig(accessTokenResolved, "GET", url.href, this.client.apiVersion);
 
-        if (!response.data.container) {
+        const response = await axios.get(url.href, requestOptions);
+
+        if (!response.data) {
           throw new BentleyError(422, `Invalid container request (API returned an unexpected response).`);
         }
 
         // update cache
         const newContainerCacheValue: ContainerCacheValue = {
-          url: new URL(response.data.container._links.containerUrl.href),
+          url: new URL(response.data._links.containerUrl.href),
           timeStamp: new Date(Date.now()),
         };
 

@@ -1,6 +1,6 @@
 {
   "name": "@itwin/reality-data-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTTP Client for the iTwin Platform Reality Data APIs",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
@@ -52,7 +52,7 @@
     "@itwin/certa": "^4.0.0",
     "@itwin/core-bentley": "^4.0.0",
     "@itwin/core-common": "^4.0.0",
-    "@itwin/eslint-plugin": "^4.0.0-dev.38",
+    "@itwin/eslint-plugin": "^4.0.0-dev.41",
     "@itwin/oidc-signin-tool": "^4.0.0",
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.4",
