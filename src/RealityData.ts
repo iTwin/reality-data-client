@@ -64,7 +64,7 @@ interface ContainerCacheValue {
  * The Azure blob URL is considered valid for an hour and is refreshed after 50 minutes.
  * In addition to the reality data properties, and Azure blob URL and internal states, a reality data also contains
  * the identification of the iTwin to be used for access permissions and
- * may contain a RealityDataClient to obtain the specialization to communicate with Reality Data API (to obtain the Azure blob URL).
+ * may contain a RealityDataClient to obtain the specialization to communicate with Reality Management API (to obtain the Azure blob URL).
  * @beta
  */
 export class ITwinRealityData implements RealityData {
@@ -82,7 +82,7 @@ export class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
-  public accessControl?: string; // DEPRECATED: not used in Reality Management API
+  public accessControl?: string; // DEPRECATED: not used in Reality Management API. TODO remove in next major
   public modifiedDateTime?: Date;
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;

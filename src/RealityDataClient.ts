@@ -33,7 +33,7 @@ export interface RealityDataClientOptions {
   baseUrl?: string;
 }
 
-/** Available Reality Data API Versions */
+/** Available Reality Management API Versions */
 export enum ApiVersion {
   v1
 }
