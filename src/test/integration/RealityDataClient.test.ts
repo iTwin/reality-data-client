@@ -103,6 +103,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     }
   });
 
+  //TODO remove once getRealityDataProjects method is removed in next major release
   it("should be able to get project information from a RealityData", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
@@ -112,6 +113,24 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityData);
     // get all projects information
     const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
+    chai.assert(projects);
+    chai.assert(projects.length === 2);
+    projects.forEach((value) => {
+      chai.assert(value.id);
+      chai.assert(value.projectDetailsLink);
+    });
+
+  });
+
+  it("should be able to get iTwin information from a RealityData", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    // displayName: iTwinjs RealityData Client get projects test, id: d344d5ec-5068-4752-9432-ff1c8f087111
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "d344d5ec-5068-4752-9432-ff1c8f087111");
+
+    chai.assert(realityData);
+    // get all projects information
+    const projects = await realityDataAccessClient.getRealityDataITwins(accessToken, realityData.id);
     chai.assert(projects);
     chai.assert(projects.length === 2);
     projects.forEach((value) => {

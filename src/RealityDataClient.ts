@@ -17,6 +17,7 @@ import axios from "axios";
 
 import { ITwinRealityData } from "./RealityData";
 import { getRequestConfig } from "./RequestOptions";
+import {Project} from "./Projects";
 
 /** Options for initializing Reality Data Client
  * @beta
@@ -215,14 +216,15 @@ export class RealityDataAccessClient implements RealityDataAccess {
   }
 
   /**
-  * Retrieves the list of iTwins associated to the specified realityData.
+  * Retrieves the list of Projects associated to the specified realityData.
+  * @deprecated Projects API is not used in RealityManagement. Use getRealityDatasITwins method.
   * @param accessToken The client request context.
   * @param realityDataId realityData identifier
-  * @returns an array of iTwin identifiers that are associated to the realityData.
+  * @returns an array of Projects that are associated to the realityData.
   * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
   * @beta
   */
-  public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<string[]> {
+  public async getRealityDataProjects(accessToken: AccessToken, realityDataId: string): Promise<Project[]> {
     try {
       const accessTokenResolved = await this.resolveAccessToken(accessToken);
       const url = `${this.baseUrl}/${realityDataId}/itwins`;
@@ -233,9 +235,60 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       const projectsResponseBody = response.data;
 
-      const itwinsResponse: string[] = [];
+      const projectsResponse: Project[] = [];
+
+      // make up projects details link manually
+      const projectsBaseUrl = this.baseUrl.replace("/reality-management/reality-data", "/projects");
 
       projectsResponseBody.iTwins.forEach((itwinValue: any) => {
+
+        //build Project object with _links.self.href
+        const href = new URL(`${projectsBaseUrl}/${itwinValue}`);
+        const self =
+        {
+          href,
+        };
+  
+        const _links = {
+          self,
+        };
+
+        projectsResponse.push(new Project(
+          {
+            id: itwinValue,
+            _links: _links,
+          }));
+      });
+
+      return projectsResponse;
+
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  /**
+  * Retrieves the list of iTwins associated to the specified realityData.
+  * @param accessToken The client request context.
+  * @param realityDataId realityData identifier
+  * @returns an array of iTwin identifiers that are associated to the realityData.
+  * @throws [[BentleyError]] with code 401 when the request lacks valid authentication credentials
+  * @beta
+  */
+  public async getRealityDataITwins(accessToken: AccessToken, realityDataId: string): Promise<string[]> {
+    try {
+      const accessTokenResolved = await this.resolveAccessToken(accessToken);
+      const url = `${this.baseUrl}/${realityDataId}/itwins`;
+      const options = getRequestConfig(accessTokenResolved, "GET", url, this.apiVersion);
+
+      // execute query
+      const response = await axios.get(url, options);
+
+      const iTwinsResponseBody = response.data;
+
+      const itwinsResponse: string[] = [];
+
+      iTwinsResponseBody.iTwins.forEach((itwinValue: any) => {
         itwinsResponse.push(itwinValue);
       });
 
