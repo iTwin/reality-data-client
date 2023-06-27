@@ -1,0 +1,7 @@
+{
+  "type": "minor",
+  "comment": "Ported to Reality Data Management API while maintaining current features.",
+  "packageName": "@itwin/reality-data-client",
+  "email": "Marc-Andre.Cote@bentley.com",
+  "dependentChangeType": "patch"
+}
