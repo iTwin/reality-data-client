@@ -4,6 +4,14 @@ This log was last generated on Wed, 31 May 2023 21:24:48 GMT and should not be m
 
 <!-- Start content -->
 
+## 1.0.1 (2023-06-27)
+- Ported iTwin/reality-data-client to [Reality Management API](https://developer.bentley.com/apis/reality-management/) following deprecation of [Reality Data API](https://developer.bentley.com/apis/reality-data/)
+    - No breaking changes should occur. 
+    - Interfaces with iTwin/core-common should still be respected
+- `getRealityDataProjects` method is now deprecated
+- `getRealityDataITwins` added to replace deprecated `getRealityDataProjects` method
+- `accessControl` property is now deprecated as it is not in Reality Management API. Still defined in `ITwinRealityData` object but does not do anything.
+
 ## 1.0.0
 
 Wed, 31 May 2023 21:24:48 GMT
