@@ -4,23 +4,31 @@
 *--------------------------------------------------------------------------------------------*/
 
 import type { RealityData } from "@itwin/core-common";
-import type { AccessToken, GuidString } from "@itwin/core-bentley";
-import { BentleyError } from "@itwin/core-bentley";
+import { type AccessToken,  BentleyError, type GuidString } from "@itwin/core-bentley";
 import type { RealityDataAccessClient } from "./RealityDataClient";
 
 import { getRequestConfig } from "./RequestOptions";
 import axios from "axios";
 
+/**
+ * Extent of a reality data, delimited by southwest and northeast coordinates.
+ */
 export interface Extent {
   southWest: Point;
   northEast: Point;
 }
 
+/**
+ * Point used to define an extent.
+ */
 export interface Point {
   latitude: number;
   longitude: number;
 }
 
+/**
+ * Provides information regarding the acquisition, such as dates and acquirer used.
+ */
 export interface Acquisition {
   startDateTime: Date;
   endDateTime?: Date;
@@ -181,7 +189,7 @@ export class ITwinRealityData implements RealityData {
       const blobUrlRequiresRefresh = !containerCache?.timeStamp || (Date.now() - containerCache?.timeStamp.getTime()) > 3000000; // 3 million milliseconds or 50 minutes
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
-        
+
         const url = new URL(`${this.client.baseUrl}/${this.id}/${ writeAccess === true ? "writeAccess" : "readAccess"}`);
 
         if(this.iTwinId)

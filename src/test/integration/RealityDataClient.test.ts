@@ -5,14 +5,11 @@
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import type { AccessToken, GuidString} from "@itwin/core-bentley";
-import { Logger, LogLevel } from "@itwin/core-bentley";
-import type { RealityData, RealityDataAccess } from "@itwin/core-common";
-import { CartographicRange } from "@itwin/core-common";
+import { type AccessToken, type GuidString, Logger, LogLevel} from "@itwin/core-bentley";
+import { CartographicRange, type RealityData, type RealityDataAccess } from "@itwin/core-common";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 
-import type { RealityDataClientOptions, RealityDataQueryCriteria } from "../../RealityDataClient";
-import { ApiVersion, RealityDataAccessClient } from "../../RealityDataClient";
+import { ApiVersion, RealityDataAccessClient, type RealityDataClientOptions, type RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 import { ITwinRealityData } from "../../RealityData";
 
@@ -103,7 +100,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     }
   });
 
-  //TODO remove once getRealityDataProjects method is removed in next major release
+  // TODO remove once getRealityDataProjects method is removed in next major release
   it("should be able to get project information from a RealityData", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
@@ -112,6 +109,8 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityData);
     // get all projects information
+
+    // eslint-disable-next-line deprecation/deprecation
     const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
     chai.assert(projects);
     chai.assert(projects.length === 2);

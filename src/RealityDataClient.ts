@@ -7,12 +7,11 @@
  * @module RealityDataClient
  */
 
-import type { AccessToken} from "@itwin/core-bentley";
-import { BentleyError } from "@itwin/core-bentley";
-
+import { type AccessToken, BentleyError} from "@itwin/core-bentley";
 import type { AuthorizationClient, CartographicRange, RealityDataAccess } from "@itwin/core-common";
 import { Angle } from "@itwin/core-geometry";
 import type { AxiosResponse } from "axios";
+// eslint-disable-next-line no-duplicate-imports
 import axios from "axios";
 
 import { ITwinRealityData } from "./RealityData";
@@ -55,6 +54,9 @@ export interface RealityDataQueryCriteria {
   continuationToken?: string;
 }
 
+/**
+ * Response object containing RealityData and continuation token
+ */
 export interface RealityDataResponse {
   realityDatas: ITwinRealityData[];
   continuationToken?: string;
@@ -217,7 +219,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
   /**
   * Retrieves the list of Projects associated to the specified realityData.
-  * @deprecated Projects API is not used in RealityManagement. Use getRealityDatasITwins method.
+  * @deprecated in 1.0.1, getRealityDataProjects is deprecated and no longer used as Projects API is deprecated. Use getRealityDatasITwins method.
   * @param accessToken The client request context.
   * @param realityDataId realityData identifier
   * @returns an array of Projects that are associated to the realityData.
@@ -242,22 +244,23 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
       projectsResponseBody.iTwins.forEach((itwinValue: any) => {
 
-        //build Project object with _links.self.href
+        // build Project object with _links.self.href structure
         const href = new URL(`${projectsBaseUrl}/${itwinValue}`);
         const self =
         {
           href,
         };
-  
-        const _links = {
-          self,
-        };
 
-        projectsResponse.push(new Project(
+        const newProject = new Project(
           {
             id: itwinValue,
-            _links: _links,
-          }));
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            _links: {
+              self,
+            },
+          });
+
+        projectsResponse.push(newProject);
       });
 
       return projectsResponse;
@@ -330,7 +333,7 @@ export class RealityDataAccessClient implements RealityDataAccess {
         authoring: iTwinRealityData.authoring,
         extent: iTwinRealityData.extent,
       };
-      
+
       const response = await axios.post(url, realityDataToCreate, options);
       iTwinRealityData = new ITwinRealityData(this, response.data.realityData, iTwinId);
     } catch (error) {
