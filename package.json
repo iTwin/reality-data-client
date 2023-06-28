@@ -72,15 +72,5 @@
   },
   "peerDependencies": {
     "@itwin/core-bentley": "^4.0.0"
-  },
-  "eslintConfig": {
-    "plugins": [
-      "@itwin"
-    ],
-    "extends": "plugin:@itwin/itwinjs-recommended",
-    "rules": {
-      "no-duplicate-imports": "off",
-      "@typescript-eslint/consistent-type-imports": "error"
-    }
   }
 }
