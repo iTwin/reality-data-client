@@ -32,7 +32,7 @@ export interface RealityDataClientOptions {
   baseUrl?: string;
 }
 
-/** Available Reality Management API Versions */
+/** Available Reality Data API Versions */
 export enum ApiVersion {
   v1
 }
@@ -63,8 +63,8 @@ export interface RealityDataResponse {
 }
 
 /**
- * Client wrapper to Reality Management API.
- * An instance of this class is used to extract reality data from the Reality Management API.
+ * Client wrapper to Reality Data API.
+ * An instance of this class is used to extract reality data from the Reality Data API.
  * Most important methods enable to obtain a specific reality data, fetch all reality data associated with an iTwin and
  * all reality data of an iTwin within a provided spatial extent.
  * This class also implements extraction of the Azure blob address.

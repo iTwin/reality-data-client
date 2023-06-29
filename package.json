@@ -1,7 +1,7 @@
 {
   "name": "@itwin/reality-data-client",
   "version": "1.0.0",
-  "description": "HTTP Client for the iTwin Platform Reality Management APIs",
+  "description": "HTTP Client for the iTwin Platform Reality Data APIs",
   "main": "lib/cjs/reality-data-client.js",
   "module": "lib/esm/reality-data-client.js",
   "typings": "lib/cjs/reality-data-client",
