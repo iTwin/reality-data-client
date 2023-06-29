@@ -85,10 +85,25 @@ export class RealityDataAccessClient implements RealityDataAccess {
       if (realityDataClientOptions.version)
         this.apiVersion = realityDataClientOptions.version;
       if (realityDataClientOptions.baseUrl)
-        this.baseUrl = realityDataClientOptions.baseUrl;
+        this.baseUrl = this.setBaseUrl(realityDataClientOptions.baseUrl);
       if (realityDataClientOptions.authorizationClient)
         this.authorizationClient = realityDataClientOptions.authorizationClient;
     }
+  }
+ /**
+ * Ensures the reality data client points to reality management api, as many users hardcode the url to the deprecated Reality Data API.
+ * @param baseUrl base url given by users of this client
+ * @returns base url to reality management api
+ */
+  private setBaseUrl(baseUrl: string): string
+  {
+    if(baseUrl.startsWith("dev-api.bentley.com")) // dev
+      return "https://dev-api.bentley.com/reality-management/reality-data";
+
+    if(baseUrl.startsWith("qa-api.bentley.com")) // qa
+      return "https://qa-api.bentley.com/reality-management/reality-data";
+
+    return "https://api.bentley.com/reality-management/reality-data"; // prod
   }
 
   /**
