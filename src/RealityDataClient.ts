@@ -97,10 +97,10 @@ export class RealityDataAccessClient implements RealityDataAccess {
  */
   private setBaseUrl(baseUrl: string): string
   {
-    if(baseUrl.startsWith("dev-api.bentley.com")) // dev
+    if(baseUrl.startsWith("https://dev-api.bentley.com")) // dev
       return "https://dev-api.bentley.com/reality-management/reality-data";
 
-    if(baseUrl.startsWith("qa-api.bentley.com")) // qa
+    if(baseUrl.startsWith("https://qa-api.bentley.com")) // qa
       return "https://qa-api.bentley.com/reality-management/reality-data";
 
     return "https://api.bentley.com/reality-management/reality-data"; // prod
