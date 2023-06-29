@@ -209,10 +209,18 @@ export class RealityDataAccessClient implements RealityDataAccess {
 
   private extractContinuationToken(url: string | undefined): string | undefined {
     if (url) {
-      const pattern = /continuationtoken=[a-zA-Z0-9]*/i;
-      const continuationToken = url.match(pattern);
-      const continuationTokenValue = continuationToken![0].split("=");
-      return continuationTokenValue[continuationTokenValue.length - 1];
+      // API returns some case sensitive parameters e.g. "ContinuationToken". Therefore first, set parameters to lowercase
+      const searchParams = new URLSearchParams(url);
+      const newParams = new URLSearchParams();
+
+      for (const [name, value] of searchParams) {
+        newParams.append(name.toLowerCase(), value);
+      }
+
+      // Then get continuation token value in case insensitive manner.
+      const token = newParams.get("continuationtoken");
+
+      return token ? token : undefined;
     }
     return undefined;
   }
