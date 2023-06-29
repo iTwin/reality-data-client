@@ -90,20 +90,25 @@ export class RealityDataAccessClient implements RealityDataAccess {
         this.authorizationClient = realityDataClientOptions.authorizationClient;
     }
   }
- /**
- * Ensures the reality data client points to reality management api, as many users hardcode the url to the deprecated Reality Data API.
- * @param baseUrl base url given by users of this client
- * @returns base url to reality management api
- */
-  private setBaseUrl(baseUrl: string): string
-  {
-    if(baseUrl.startsWith("https://dev-api.bentley.com")) // dev
+
+  /**
+  * Ensures the reality data client points to reality management api, as many users hardcode the url to the deprecated Reality Data API.
+  * @param baseUrl base url given by users of this client
+  * @returns base url to reality management api
+  */
+  private setBaseUrl(baseUrl: string): string {
+    const url = new URL(baseUrl);
+
+    if(url.host === "dev-api.bentley.com")
       return "https://dev-api.bentley.com/reality-management/reality-data";
 
-    if(baseUrl.startsWith("https://qa-api.bentley.com")) // qa
+    if(url.host === "qa-api.bentley.com")
       return "https://qa-api.bentley.com/reality-management/reality-data";
 
-    return "https://api.bentley.com/reality-management/reality-data"; // prod
+    if(url.host === "api.bentley.com")
+      return "https://api.bentley.com/reality-management/reality-data";
+
+    throw new Error("invalid host");
   }
 
   /**

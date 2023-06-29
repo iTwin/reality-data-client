@@ -52,6 +52,51 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert.isDefined(iTwinId);
   });
 
+  it("should properly redirect configured URL to proper Reality Data API URL", async () => {
+
+    // dev
+    const realityDataClientConfigDev: RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://dev-api.bentley.com/realitydata",
+    };
+
+    const realityDataAccessClientDev = new RealityDataAccessClient(realityDataClientConfigDev);
+    chai.assert(realityDataAccessClientDev.baseUrl === "https://dev-api.bentley.com/reality-management/reality-data");
+
+    // qa
+    const realityDataClientConfigQa:  RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://qa-api.bentley.com/www.someotherfakehost.com/",
+    };
+
+    const realityDataAccessClientQa = new RealityDataAccessClient(realityDataClientConfigQa);
+    chai.assert(realityDataAccessClientQa.baseUrl === "https://qa-api.bentley.com/reality-management/reality-data");
+
+    // prod
+    const realityDataClientConfigProd: RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://api.bentley.com/realitydata",
+    };
+
+    const realityDataAccessClientProd = new RealityDataAccessClient(realityDataClientConfigProd);
+    chai.assert(realityDataAccessClientProd.baseUrl === "https://api.bentley.com/reality-management/reality-data");
+
+    // error test
+    const realityDataClientConfigError:  RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://evilwebsite.net",
+    };
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const realityDataAccessClientError = new RealityDataAccessClient(realityDataClientConfigError);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.message === "invalid host", `Error message should be 'invalid host'. It is '${errorResponse.errorNumber}.`);
+      return;
+    }
+
+  });
+
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
       const realityDataId = "f2065aea-5dcd-49e2-9077-e082dde506bc";
