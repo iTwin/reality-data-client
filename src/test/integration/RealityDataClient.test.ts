@@ -493,7 +493,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
 
   let iTwinId: GuidString;
 
-  const inexistantTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
+  const nonexistentTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
 
   let accessToken: AccessToken;
 
@@ -510,7 +510,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.getRealityData(accessToken, iTwinId, rdId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityData should throw an error.");
@@ -519,9 +519,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when Reality Data ID does not exist.", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.getRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityData should throw an error.");
@@ -549,7 +549,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityDatas should throw an error when top parameter is > 500.");
@@ -567,7 +567,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "createRealityData should throw an error.");
@@ -576,7 +576,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (modifying a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     const realityData = new ITwinRealityData(realityDataAccessClient);
-    realityData.id = inexistantTilesId;
+    realityData.id = nonexistentTilesId;
     realityData.displayName = "MODIFIED iTwinjs RealityData";
     realityData.dataset = "Test Dataset for iTwinjs";
     realityData.description = "Dummy description for a test reality data";
@@ -585,7 +585,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.modifyRealityData(accessToken, iTwinId, realityData);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "createRealityData should throw an error.");
@@ -594,9 +594,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (deleting a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.deleteRealityData(accessToken, inexistantTilesId);
+      await realityDataAccessClient.deleteRealityData(accessToken, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "deleteRealityData should throw an error.");
@@ -605,9 +605,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (associate a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.associateRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.associateRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "associateRealityData should throw an error.");
@@ -616,9 +616,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (dissociate a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "dissociateRealityData should throw an error.");

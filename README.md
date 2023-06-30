@@ -39,7 +39,7 @@ Implements the `RealityDataAccess` interface from  __@itwin/core-common__ and se
 - `getRealityData` : returns the specified reality data with all of its properties
 - `getRealityDataUrl` :  returns the URL to obtain the Reality Data details.
 - `getRealityDatas` : returns all reality data associated with the iTwin.
-- `getRealityDataProjects` : Retrieves the list of projects associated to the specified realityData.
+- `getRealityDataITwins` : Retrieves the list of iTwins associated to the specified realityData.
 - `createRealityData` : Creates a RealityData
 - `modifyRealityData` : Modifies an existing RealityData
 - `deleteRealityData` : Deletes a RealityData
