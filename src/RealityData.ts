@@ -90,7 +90,8 @@ export class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
-  public accessControl?: string; // DEPRECATED: not used in Reality Management API. TODO remove in next major
+  /** @deprecated in 1.0.1 not used in Reality Management API. Will be removed in next major update.*/
+  public accessControl?: string; // TODO remove in next major update
   public modifiedDateTime?: Date;
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
