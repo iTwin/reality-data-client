@@ -133,6 +133,7 @@ export class ITwinRealityData implements RealityData {
       this.classification = realityData.classification;
       this.type = realityData.type;
       this.extent = realityData.extent;
+      // eslint-disable-next-line deprecation/deprecation
       this.accessControl = realityData.accessControl;
       this.modifiedDateTime = new Date(realityData.modifiedDateTime);
       this.lastAccessedDateTime = new Date(realityData.lastAccessedDateTime);
