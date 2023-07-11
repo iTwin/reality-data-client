@@ -14,7 +14,7 @@ Visit the [iTwin developer portal](https://developer.bentley.com/apis/reality-da
 
 ## Requirements
 
-A registered application in the iTwin Platform is needed for using the Reality Data Client. Documentation for registering an application can be found [here.](https://developer.bentley.com/tutorials/register-and-modify-application/) Make sure that your application is associated with **Digital Twin Management** and **Visualization** and has `realitydata:read realitydata:modify` scopes enabled. 
+A registered application in the iTwin Platform is needed for using the Reality Data Client. Documentation for registering an application can be found [here.](https://developer.bentley.com/tutorials/register-and-modify-application/) Make sure that your application is associated with **Reality Management** and **Visualization** and has `realitydata:read realitydata:modify` scopes enabled. 
 
 To use the Reality Data API you will need to have an access to a project. If you don't have one already, contact one of your Organization Administrators or take some time to go through the following tutorial: Create a [Project](https://developer.bentley.com/tutorials/create-and-query-projects-guide).
 
@@ -39,7 +39,7 @@ Implements the `RealityDataAccess` interface from  __@itwin/core-common__ and se
 - `getRealityData` : returns the specified reality data with all of its properties
 - `getRealityDataUrl` :  returns the URL to obtain the Reality Data details.
 - `getRealityDatas` : returns all reality data associated with the iTwin.
-- `getRealityDataProjects` : Retrieves the list of projects associated to the specified realityData.
+- `getRealityDataITwins` : Retrieves the list of iTwins associated to the specified realityData.
 - `createRealityData` : Creates a RealityData
 - `modifyRealityData` : Modifies an existing RealityData
 - `deleteRealityData` : Deletes a RealityData

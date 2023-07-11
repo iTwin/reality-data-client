@@ -4,23 +4,31 @@
 *--------------------------------------------------------------------------------------------*/
 
 import type { RealityData } from "@itwin/core-common";
-import type { AccessToken, GuidString } from "@itwin/core-bentley";
-import { BentleyError } from "@itwin/core-bentley";
+import { type AccessToken,  BentleyError, type GuidString } from "@itwin/core-bentley";
 import type { RealityDataAccessClient } from "./RealityDataClient";
 
 import { getRequestConfig } from "./RequestOptions";
 import axios from "axios";
 
+/**
+ * Extent of a reality data, delimited by southwest and northeast coordinates.
+ */
 export interface Extent {
   southWest: Point;
   northEast: Point;
 }
 
+/**
+ * Point used to define an extent.
+ */
 export interface Point {
   latitude: number;
   longitude: number;
 }
 
+/**
+ * Provides information regarding the acquisition, such as dates and acquirer used.
+ */
 export interface Acquisition {
   startDateTime: Date;
   endDateTime?: Date;
@@ -82,7 +90,8 @@ export class ITwinRealityData implements RealityData {
   public classification?: string;
   public type?: string;
   public extent?: Extent;
-  public accessControl?: string;
+  /** @deprecated in 1.0.1 not used in Reality Management API. Will be removed in next major update.*/
+  public accessControl?: string; // TODO remove in next major update
   public modifiedDateTime?: Date;
   public lastAccessedDateTime?: Date;
   public createdDateTime?: Date;
@@ -124,6 +133,7 @@ export class ITwinRealityData implements RealityData {
       this.classification = realityData.classification;
       this.type = realityData.type;
       this.extent = realityData.extent;
+      // eslint-disable-next-line deprecation/deprecation
       this.accessControl = realityData.accessControl;
       this.modifiedDateTime = new Date(realityData.modifiedDateTime);
       this.lastAccessedDateTime = new Date(realityData.lastAccessedDateTime);
@@ -182,19 +192,22 @@ export class ITwinRealityData implements RealityData {
 
       if (undefined === containerCache?.url || blobUrlRequiresRefresh) {
 
-        const url = this.iTwinId ? `${this.client.baseUrl}/${this.id}/container/?projectId=${this.iTwinId}&access=${access}`
-          : `${this.client.baseUrl}/${this.id}/container/?&access=${access}`;
-        const requestOptions = getRequestConfig(accessTokenResolved, "GET", url, this.client.apiVersion);
+        const url = new URL(`${this.client.baseUrl}/${this.id}/${ writeAccess === true ? "writeAccess" : "readAccess"}`);
 
-        const response = await axios.get(url, requestOptions);
+        if(this.iTwinId)
+          url.searchParams.append("iTwinId", this.iTwinId);
 
-        if (!response.data.container) {
+        const requestOptions = getRequestConfig(accessTokenResolved, "GET", url.href, this.client.apiVersion);
+
+        const response = await axios.get(url.href, requestOptions);
+
+        if (!response.data) {
           throw new BentleyError(422, `Invalid container request (API returned an unexpected response).`);
         }
 
         // update cache
         const newContainerCacheValue: ContainerCacheValue = {
-          url: new URL(response.data.container._links.containerUrl.href),
+          url: new URL(response.data._links.containerUrl.href),
           timeStamp: new Date(Date.now()),
         };
 

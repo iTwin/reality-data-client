@@ -5,14 +5,11 @@
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import type { AccessToken, GuidString} from "@itwin/core-bentley";
-import { Logger, LogLevel } from "@itwin/core-bentley";
-import type { RealityData, RealityDataAccess } from "@itwin/core-common";
-import { CartographicRange } from "@itwin/core-common";
+import { type AccessToken, type GuidString, Logger, LogLevel} from "@itwin/core-bentley";
+import { CartographicRange, type RealityData, type RealityDataAccess } from "@itwin/core-common";
 import { Point3d, Range3d, Transform } from "@itwin/core-geometry";
 
-import type { RealityDataClientOptions, RealityDataQueryCriteria } from "../../RealityDataClient";
-import { ApiVersion, RealityDataAccessClient } from "../../RealityDataClient";
+import { ApiVersion, RealityDataAccessClient, type RealityDataClientOptions, type RealityDataQueryCriteria } from "../../RealityDataClient";
 import { TestConfig } from "../TestConfig";
 import { ITwinRealityData } from "../../RealityData";
 
@@ -38,7 +35,7 @@ Logger.setLevel(LOG_CATEGORY, LogLevel.Info);
 
 const realityDataClientConfig: RealityDataClientOptions = {
   version: ApiVersion.v1,
-  baseUrl: "https://api.bentley.com/realitydata",
+  baseUrl: "https://api.bentley.com/reality-management/reality-data",
 };
 
 describe("RealityServicesClient Normal (#integration)", () => {
@@ -55,6 +52,51 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert.isDefined(iTwinId);
   });
 
+  it("should properly redirect configured URL to proper Reality Data API URL", async () => {
+
+    // dev
+    const realityDataClientConfigDev: RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://dev-api.bentley.com/realitydata",
+    };
+
+    const realityDataAccessClientDev = new RealityDataAccessClient(realityDataClientConfigDev);
+    chai.assert(realityDataAccessClientDev.baseUrl === "https://dev-api.bentley.com/reality-management/reality-data");
+
+    // qa
+    const realityDataClientConfigQa:  RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://qa-api.bentley.com/www.someotherfakehost.com/",
+    };
+
+    const realityDataAccessClientQa = new RealityDataAccessClient(realityDataClientConfigQa);
+    chai.assert(realityDataAccessClientQa.baseUrl === "https://qa-api.bentley.com/reality-management/reality-data");
+
+    // prod
+    const realityDataClientConfigProd: RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://api.bentley.com/realitydata",
+    };
+
+    const realityDataAccessClientProd = new RealityDataAccessClient(realityDataClientConfigProd);
+    chai.assert(realityDataAccessClientProd.baseUrl === "https://api.bentley.com/reality-management/reality-data");
+
+    // error test
+    const realityDataClientConfigError:  RealityDataClientOptions = {
+      version: ApiVersion.v1,
+      baseUrl: "https://evilwebsite.net",
+    };
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const realityDataAccessClientError = new RealityDataAccessClient(realityDataClientConfigError);
+    } catch (errorResponse: any) {
+      chai.assert(errorResponse.message === "invalid host", `Error message should be 'invalid host'. It is '${errorResponse.errorNumber}.`);
+      return;
+    }
+
+  });
+
   it("should return a RealityData URL properly from a given ID", async () => {
     try {
       const realityDataId = "f2065aea-5dcd-49e2-9077-e082dde506bc";
@@ -62,8 +104,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
       // test with iTwinId
       let realityDataUrl = await realityDataAccessClient.getRealityDataUrl(iTwinId, realityDataId);
-      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?projectId=${iTwinId}`;
-
+      const expectedUrl = `${realityDataClientConfig.baseUrl}/f2065aea-5dcd-49e2-9077-e082dde506bc?iTwinId=${iTwinId}`;
       chai.assert(realityDataUrl === expectedUrl);
 
       // test without iTwinId
@@ -104,6 +145,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     }
   });
 
+  // TODO remove once getRealityDataProjects method is removed in next major release
   it("should be able to get project information from a RealityData", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
 
@@ -112,12 +154,31 @@ describe("RealityServicesClient Normal (#integration)", () => {
 
     chai.assert(realityData);
     // get all projects information
+
+    // eslint-disable-next-line deprecation/deprecation
     const projects = await realityDataAccessClient.getRealityDataProjects(accessToken, realityData.id);
     chai.assert(projects);
     chai.assert(projects.length === 2);
     projects.forEach((value) => {
       chai.assert(value.id);
       chai.assert(value.projectDetailsLink);
+    });
+
+  });
+
+  it("should be able to get iTwin information from a RealityData", async () => {
+    const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
+
+    // displayName: iTwinjs RealityData Client get projects test, id: d344d5ec-5068-4752-9432-ff1c8f087111
+    const realityData = await realityDataAccessClient.getRealityData(accessToken, iTwinId, "d344d5ec-5068-4752-9432-ff1c8f087111");
+
+    chai.assert(realityData);
+    // get all projects information
+    const projects = await realityDataAccessClient.getRealityDataITwins(accessToken, realityData.id);
+    chai.assert(projects);
+    chai.assert(projects.length === 2);
+    projects.forEach((value) => {
+      chai.assert(value);
     });
 
   });
@@ -288,7 +349,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
         northEast: { latitude: 40.6716, longitude: -80.3359 }
       }
     */
-    // with http request : https://api.bentley.com/realitydata?projectId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
+    // with http request : https://api.bentley.com/reality-management/realitydata/?iTwinId=614a3c70-cc9f-4de9-af87-f834002ca19e&$top=10&extent=-80.35221279383678,40.6693689301031,-80.32437826187261,40.68067531423824'
     chai.expect(realityDataResponse.realityDatas.length === 1);
     chai.assert(realityDataResponse.realityDatas[0].id === "de1badb3-012f-4f18-b28a-57d3f2164ba8");
 
@@ -317,7 +378,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataResponse.extent?.southWest.longitude === -122.9543);
     chai.assert(realityDataResponse.extent?.northEast.latitude === 50.1172);
     chai.assert(realityDataResponse.extent?.northEast.longitude === -122.9543);
-    chai.assert(realityDataResponse.accessControl === "Project");
     chai.assert(realityDataResponse.authoring === false);
     chai.assert(realityDataResponse.dataCenterLocation === "East US");
     chai.assert(realityDataResponse.modifiedDateTime?.getTime() === new Date("2021-12-01T21:17:38Z").getTime());
@@ -336,7 +396,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     realityData.description = "Dummy description for a test reality data";
     realityData.rootDocument = "RootDocumentFile.txt";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.acquisition = {
       startDateTime: new Date("2019-05-10T09:46:16Z"),
       endDateTime: new Date("2019-05-10T09:46:16Z"),
@@ -374,7 +434,6 @@ describe("RealityServicesClient Normal (#integration)", () => {
     chai.assert(realityDataAdded.extent!.northEast.latitude === 1.1);
     chai.assert(realityDataAdded.extent!.northEast.longitude === 2.1);
 
-    chai.assert(realityDataAdded.accessControl === "Project");
     chai.assert(realityDataAdded.authoring === false);
     chai.assert(realityDataAdded.dataCenterLocation === "East US");
 
@@ -399,7 +458,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.displayName = "iTwinjs RealityData Client associate and dissociate test";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
 
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
 
@@ -416,7 +475,7 @@ describe("RealityServicesClient Normal (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.displayName = "iTwinjs RealityData Client CRUD test without iTwinId";
     realityData.classification = "Undefined";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
 
     // current test user belongs to no organization and needs a iTwin to create realityData. However, the modify without iTwinId can be tested.
     const realityDataAdded = await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
@@ -434,7 +493,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
 
   let iTwinId: GuidString;
 
-  const inexistantTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
+  const nonexistentTilesId: string = "f2065aea-5dcd-49e2-9077-000000000000";
 
   let accessToken: AccessToken;
 
@@ -451,7 +510,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.getRealityData(accessToken, iTwinId, rdId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityData should throw an error.");
@@ -460,9 +519,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when Reality Data ID does not exist.", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.getRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.getRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityData should throw an error.");
@@ -490,7 +549,7 @@ describe("RealityServicesClient Errors (#integration)", () => {
     try {
       await realityDataAccessClient.getRealityDatas(accessToken, iTwinId, realityDataQueryCriteria);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "getRealityDatas should throw an error when top parameter is > 500.");
@@ -503,12 +562,12 @@ describe("RealityServicesClient Errors (#integration)", () => {
     const realityData = new ITwinRealityData(realityDataAccessClient);
     realityData.dataset = "Test Dataset for iTwinjs";
     realityData.description = "Dummy description for a test reality data";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.classification = "Undefined";
     try {
       await realityDataAccessClient.createRealityData(accessToken, iTwinId, realityData);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 422, `Error message should be 422. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 422, `Error code should be 422. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "createRealityData should throw an error.");
@@ -517,16 +576,16 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (modifying a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     const realityData = new ITwinRealityData(realityDataAccessClient);
-    realityData.id = inexistantTilesId;
+    realityData.id = nonexistentTilesId;
     realityData.displayName = "MODIFIED iTwinjs RealityData";
     realityData.dataset = "Test Dataset for iTwinjs";
     realityData.description = "Dummy description for a test reality data";
-    realityData.type = "Undefined";
+    realityData.type = "3MX";
     realityData.classification = "Undefined";
     try {
       await realityDataAccessClient.modifyRealityData(accessToken, iTwinId, realityData);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "createRealityData should throw an error.");
@@ -535,9 +594,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (deleting a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.deleteRealityData(accessToken, inexistantTilesId);
+      await realityDataAccessClient.deleteRealityData(accessToken, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "deleteRealityData should throw an error.");
@@ -546,9 +605,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (associate a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.associateRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.associateRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "associateRealityData should throw an error.");
@@ -557,9 +616,9 @@ describe("RealityServicesClient Errors (#integration)", () => {
   it("should throw a 404 error when reality data id does not exist (dissociate a reality data)", async () => {
     const realityDataAccessClient = new RealityDataAccessClient(realityDataClientConfig);
     try {
-      await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId, inexistantTilesId);
+      await realityDataAccessClient.dissociateRealityData(accessToken, iTwinId, nonexistentTilesId);
     } catch (errorResponse: any) {
-      chai.assert(errorResponse.errorNumber === 404, `Error message should be 404. It is ${errorResponse.errorNumber}.`);
+      chai.assert(errorResponse.errorNumber === 404, `Error code should be 404. It is ${errorResponse.errorNumber}.`);
       return;
     }
     chai.assert(false, "dissociateRealityData should throw an error.");
