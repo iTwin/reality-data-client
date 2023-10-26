@@ -1,6 +1,6 @@
 {
   "type": "patch",
-  "comment": "update oidc-signin-tool",
+  "comment": "update oidc-signin-tool & Bump crypto-js to to 4.2.0",
   "packageName": "@itwin/reality-data-client",
   "email": "Marc-Andre.Cote@bentley.com",
   "dependentChangeType": "patch"
