@@ -1,0 +1,7 @@
+{
+  "type": "patch",
+  "comment": "Bump axios from 1.4.0 to 1.6.0",
+  "packageName": "@itwin/reality-data-client",
+  "email": "Marc-Andre.Cote@bentley.com",
+  "dependentChangeType": "patch"
+}
