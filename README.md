@@ -1,3 +1,7 @@
+# NOTE : Repository has moved
+
+ @iTwin/reality-data-client has been moved to [iTwin/reality-capture monorepo](https://github.com/iTwin/reality-capture). This repo is archived.
+
 # @iTwin/reality-data-client
 
 Copyright © Bentley Systems, Incorporated. All rights reserved. See LICENSE.md for license terms and full copyright notice.
